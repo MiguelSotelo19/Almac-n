@@ -13,17 +13,18 @@ import java.net.UnknownHostException;
 public class CustomInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String ip  = convertirIPv6ToIPv4(request.getRemoteAddr());
-        ip= convertirIPv6ToIPv4(ip);
+        String ip = convertirIPv6ToIPv4(request.getRemoteAddr());
+        System.out.println("Revisando dirección IP antes de pasar al controller...");
+        ip = convertirIPv6ToIPv4(ip);
+        System.out.println(ip);
 
-        if(ip.startsWith("192.168")){
-            System.out.println("Direccion ip blñoqueada");
-            response.sendError(HttpServletResponse.SC_FORBIDDEN,"La direccion IP está blqueada");
+        if(ip.startsWith("192.165")) {
+            System.out.println("La dirección IP está bloqueada");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "La dirección IP está bloqueada");
             return false;
-        } else{
+        } else {
             return true;
         }
-
     }
 
     @Override

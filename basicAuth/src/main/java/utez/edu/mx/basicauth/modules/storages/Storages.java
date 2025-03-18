@@ -1,0 +1,23 @@
+package utez.edu.mx.basicauth.modules.storages;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import utez.edu.mx.basicauth.modules.article.Article;
+
+import java.util.List;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Storages {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String location;
+
+    @OneToMany(mappedBy = "storage")
+    private List<Article> articles;
+}
