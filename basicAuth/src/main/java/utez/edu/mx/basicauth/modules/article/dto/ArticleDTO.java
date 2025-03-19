@@ -4,15 +4,17 @@ public class ArticleDTO {
     private Long id;
     private String title;
     private String description;
+    private Long cantidad;
     private Long categoryId;
     private Long storageId;
 
     public ArticleDTO() {}
 
-    public ArticleDTO(Long id, String title, String description, Long categoryId, Long storageId) {
+    public ArticleDTO(Long id, String title, String description, Long cantidad, Long categoryId, Long storageId) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.cantidad = cantidad;
         this.categoryId = categoryId;
         this.storageId = storageId;
     }
@@ -31,4 +33,12 @@ public class ArticleDTO {
 
     public Long getStorageId() { return storageId; }
     public void setStorageId(Long storageId) { this.storageId = storageId; }
+
+    public Long getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Long cantidad) {
+        this.cantidad = cantidad;
+    }
 }

@@ -28,6 +28,7 @@ public class ArticleService {
                         article.getId(),
                         article.getTitle(),
                         article.getDescription(),
+                        article.getCantidad(),
                         article.getCategory().getCategory_id(),
                         article.getStorage().getId()
                 ))
@@ -48,6 +49,6 @@ public class ArticleService {
         article.setStorage(storage);
 
         article = articleRepository.save(article);
-        return new ArticleDTO(article.getId(), article.getTitle(), article.getDescription(), category.getCategory_id(), storage.getId());
+        return new ArticleDTO(article.getId(), article.getTitle(), article.getDescription(), article.getCantidad(), category.getCategory_id(), storage.getId());
     }
 }

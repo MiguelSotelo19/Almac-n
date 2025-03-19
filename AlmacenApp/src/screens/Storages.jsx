@@ -20,6 +20,15 @@ export const Storages = () => {
 
     const [ catName, setCatName ] = useState("");
     const [ location, setLocation ] = useState("");
+    const [ artName, setArtName ] = useState("");
+    const [ artDesc, setArtDesc ] = useState("");
+    const [ artCant, setArtCant ] = useState("");
+
+    const token = localStorage.getItem("token");
+
+    if(token == null){
+        navigate("/Almacen/IniciarSesion");
+    }
 
     useEffect(() => {
         getCategories();
@@ -33,6 +42,7 @@ export const Storages = () => {
     };
 
     const getStorages = async (id) => {
+        setArticles([]);
         setSelectedCategory(id);
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
@@ -66,10 +76,29 @@ export const Storages = () => {
         } else {
             let parametros = {
                 location: location,
-                category_id: selectedCategory
+                categoryId: selectedCategory
             }
+            console.log(parametros);
 
             enviarPeticion("POST", parametros, urlStorage, 2);
+        }
+    }
+
+    const validarArt = () => {
+        if(artName == "") {
+            alert("Ingresa un nombre válido");
+        } else if(artDesc == "") {
+            alert("Ingresa una descripción válida");
+        } else {
+            let parametros = {
+                title: artName,
+                description: artDesc,
+                categoryId: selectedCategory,
+                storageId: selectedStorage
+            }
+            console.log(parametros);
+
+            enviarPeticion("POST", parametros, urlArticles, 3);
         }
     }
 
@@ -95,13 +124,16 @@ export const Storages = () => {
                     document.getElementById("storages").querySelector(".btn-close").click();
                     alert("Almacén registrado con éxito");                    
                     break;
+                case 3:
+                    getArticles(selectedStorage);
+                    setArtDesc(""); 
+                    setArtName("");
+                    document.getElementById("articles").querySelector(".btn-close").click();
+                    alert("Artículo registrado con éxito");                    
+                    break;
             }
         })
     }
-
-
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/Almacen/IniciarSesion");
 
     return (
         <div className="container-fluid">
@@ -117,7 +149,7 @@ export const Storages = () => {
                         <div className="card p-3">
                             <div className="card-body">
                                 <div className="d-flex justify-content-end">
-                                    <button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#categories">Añadir</button>
+                                    <button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#categories">Añadir categoría</button>
                                 </div>
                                 {categories.map(cat => (
                                     <div className="form-check" key={cat.id}>
@@ -132,7 +164,7 @@ export const Storages = () => {
                         </div>
                     </div>
                     
-                    {storages.length > 0 && (
+                    {storages.length > 0 || selectedCategory ? (
                         <div className="card mb-4">
                             <div className="card-body">
                                 <div className="d-lg-flex justify-content-between align-items-center">
@@ -141,9 +173,9 @@ export const Storages = () => {
                             </div>
                             <div className="card p-3">
                                 <div className="card-body">
-                                <div className="d-flex justify-content-end">
-                                    <button className="btn btn-success mb-2">Añadir</button>
-                                </div>
+                                    <div className="d-flex justify-content-end">
+                                        <button button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#storages">Añadir almacén</button>
+                                    </div>
                                     {storages.map(st => (
                                         <div className="form-check" key={st.id}>
                                             <input type="radio" id={`st_${st.id}`} name="storage" 
@@ -156,15 +188,22 @@ export const Storages = () => {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    ): (<></>)}
 
+                    
+                    {selectedStorage ? (
+                        <div className="d-flex justify-content-end">
+                            <button button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#articles">Añadir artículo</button>
+                        </div>
+                    ) : (<></>)}
                     <table className="table table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Nombre</th>
                                 <th>Descripción</th>
-                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                                {/*<th>Categoría</th>*/}
                             </tr>
                         </thead>
                         <tbody>
@@ -174,7 +213,8 @@ export const Storages = () => {
                                         <td>{at.id}</td>
                                         <td>{at.title}</td>
                                         <td>{at.description}</td>
-                                        <td>{at.categoryId}</td>
+                                        <td>{at.cantidad}</td>
+                                        {/*<td>{at.categoryId}</td>*/}
                                     </tr>
                                 ))
                             ) : (
@@ -198,7 +238,7 @@ export const Storages = () => {
                         <form>
                             <div className="mb-3">
                                 <label htmlFor="nombreCat" className="form-label">Nombre:</label>
-                                <input type="text" className="form-control" id="nombreCat" placeholder="e.j Tecnología" onInput={(e) => setCatName(e.target.value)} />
+                                <input type="text" className="form-control" id="nombreCat" placeholder="Nombre de la categoría" onInput={(e) => setCatName(e.target.value)} />
                             </div>  
                         </form>
                     </div>
@@ -221,13 +261,44 @@ export const Storages = () => {
                         <form>
                             <div className="mb-3">
                                 <label htmlFor="locationSt" className="form-label">Localización:</label>
-                                <input type="text" className="form-control" id="locationSt" placeholder="e.j Tecnología" onInput={(e) => setLocation(e.target.value)} />
+                                <input type="text" className="form-control" id="locationSt" placeholder="Localización del almacén" onInput={(e) => setLocation(e.target.value)} />
                             </div>  
                         </form>
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" className="btn btn-primary" onClick={() => validarSt()}>Añadir</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="articles" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                    <div className="modal-header">
+                        <h1 className="modal-title fs-5" id="staticBackdropLabel">Añadir Artículo</h1>
+                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div className="modal-body">
+                        <form>
+                            <div className="mb-3">
+                                <label htmlFor="nombreCat" className="form-label">Nombre:</label>
+                                <input type="text" className="form-control" id="nombreCat" placeholder="Nombre del artículo" onInput={(e) => setArtName(e.target.value)} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="nombreCat" className="form-label">Descripción:</label>
+                                <input type="text" className="form-control" id="nombreCat" placeholder="Descripción del artículo" onInput={(e) => setArtDesc(e.target.value)} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="nombreCat" className="form-label">Cantidad:</label>
+                                <input type="number" className="form-control" id="nombreCat" placeholder="Cantidad de artículos" onInput={(e) => setArtCant(e.target.value)} />
+                            </div>
+                        </form>
+                    </div>
+                    <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" className="btn btn-primary" onClick={() => validarArt()}>Añadir</button>
                     </div>
                     </div>
                 </div>
