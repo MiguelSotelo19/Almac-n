@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import utez.edu.mx.basicauth.modules.article.Article;
+import utez.edu.mx.basicauth.modules.category.Category;
 
 import java.util.List;
 
@@ -20,4 +21,8 @@ public class Storages {
 
     @OneToMany(mappedBy = "storage")
     private List<Article> articles;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

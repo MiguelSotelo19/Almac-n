@@ -23,6 +23,9 @@ public class Article {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
+    private Long cantidad;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

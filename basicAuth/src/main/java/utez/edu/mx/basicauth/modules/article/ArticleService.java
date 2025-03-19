@@ -8,6 +8,7 @@ import utez.edu.mx.basicauth.modules.storages.Storages;
 import utez.edu.mx.basicauth.modules.storages.StoragesRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +29,8 @@ public class ArticleService {
                         article.getId(),
                         article.getTitle(),
                         article.getDescription(),
-                        article.getCategory().getId(),
+                        article.getCantidad(),
+                        article.getCategory().getCategory_id(),
                         article.getStorage().getId()
                 ))
                 .collect(Collectors.toList());
@@ -38,6 +40,7 @@ public class ArticleService {
         Article article = new Article();
         article.setTitle(articleDto.getTitle());
         article.setDescription(articleDto.getDescription());
+        article.setCantidad(articleDto.getCantidad());
 
         Category category = categoryRepository.findById(articleDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -48,6 +51,36 @@ public class ArticleService {
         article.setStorage(storage);
 
         article = articleRepository.save(article);
-        return new ArticleDTO(article.getId(), article.getTitle(), article.getDescription(), category.getId(), storage.getId());
+        return new ArticleDTO(article.getId(), article.getTitle(), article.getDescription(), article.getCantidad(), category.getCategory_id(), storage.getId());
+    }
+
+    public String updateArticle(Long id, ArticleDTO articleDto) {
+        Optional<Article> optionalArticle = articleRepository.findById(id);
+        if (optionalArticle.isPresent()) {
+            Article article = optionalArticle.get();
+            article.setTitle(articleDto.getTitle());
+            article.setDescription(articleDto.getDescription());
+            article.setCantidad(articleDto.getCantidad());
+
+            Category category = categoryRepository.findById(articleDto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada."));
+            article.setCategory(category);
+
+            Storages storage = storagesRepository.findById(articleDto.getStorageId())
+                    .orElseThrow(() -> new RuntimeException("Almacén no encontrado."));
+            article.setStorage(storage);
+
+            articleRepository.save(article);
+            return "Artículo actualizado exitosamente.";
+        }
+        return "Artículo no encontrado.";
+    }
+
+    public String deleteArticle(Long id) {
+        if (articleRepository.existsById(id)) {
+            articleRepository.deleteById(id);
+            return "Artículo eliminado exitosamente.";
+        }
+        return "Artículo no encontrado.";
     }
 }

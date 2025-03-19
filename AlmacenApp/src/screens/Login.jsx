@@ -1,14 +1,13 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
 
-import banner from "../assets/banner.jpeg";
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";
+//import Swal from 'sweetalert2';
 import { useEffect } from "react";
 
+import banner from "../assets/banner.jpeg";
 
 export const Login = () => {
     const urlLogin = 'http://127.0.0.1:8080/api/auth/login';
@@ -56,7 +55,7 @@ export const Login = () => {
                     timer: 2000,
                     showConfirmButton: false,
                 }).then(() => {
-                    navigate("/Almacen/Inicio");
+                    navigate("/Almacen/");
                 });
             }
         } catch (error) {
