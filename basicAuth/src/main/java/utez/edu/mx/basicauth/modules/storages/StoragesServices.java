@@ -17,7 +17,7 @@ public class StoragesServices {
 
     public List<StoragesDTO> getAllStorages() {
         return storagesRepository.findAll().stream()
-                .map(storage -> new StoragesDTO(storage.getId(), storage.getLocation()))
+                .map(storage -> new StoragesDTO(storage.getId(), storage.getLocation(), storage.getCategory().getCategory_id()))
                 .collect(Collectors.toList());
     }
 

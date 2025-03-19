@@ -16,7 +16,7 @@ public class CategoryService {
 
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(category -> new CategoryDTO(category.getId(), category.getName()))
+                .map(category -> new CategoryDTO(category.getCategory_id(), category.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -24,7 +24,7 @@ public class CategoryService {
         Category category = new Category();
         category.setName(categoryDto.getName());
         category = categoryRepository.save(category);
-        return new CategoryDTO(category.getId(), category.getName());
+        return new CategoryDTO(category.getCategory_id(), category.getName());
     }
 }
 

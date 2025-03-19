@@ -28,7 +28,7 @@ public class ArticleService {
                         article.getId(),
                         article.getTitle(),
                         article.getDescription(),
-                        article.getCategory().getId(),
+                        article.getCategory().getCategory_id(),
                         article.getStorage().getId()
                 ))
                 .collect(Collectors.toList());
@@ -48,6 +48,6 @@ public class ArticleService {
         article.setStorage(storage);
 
         article = articleRepository.save(article);
-        return new ArticleDTO(article.getId(), article.getTitle(), article.getDescription(), category.getId(), storage.getId());
+        return new ArticleDTO(article.getId(), article.getTitle(), article.getDescription(), category.getCategory_id(), storage.getId());
     }
 }
