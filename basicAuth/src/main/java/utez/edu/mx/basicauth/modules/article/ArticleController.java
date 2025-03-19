@@ -24,4 +24,14 @@ public class ArticleController {
     public ArticleDTO createArticle(@RequestBody ArticleDTO articleDto) {
         return articleService.createArticle(articleDto);
     }
+
+    @PutMapping("/{id}")
+    public String updateArticle(@PathVariable Long id, @RequestBody ArticleDTO articleDto) {
+        return articleService.updateArticle(id, articleDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteArticle(@PathVariable Long id) {
+        return articleService.deleteArticle(id);
+    }
 }
