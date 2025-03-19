@@ -17,9 +17,11 @@ export const Storages = () => {
     const [ articles, setArticles ] = useState([]);
     const [ selectedCategory, setSelectedCategory ] = useState(null);
     const [ selectedStorage, setSelectedStorage ] = useState(null);
+    const [isUpdate, setIsUpdate] = useState(false);
 
     const [ catName, setCatName ] = useState("");
     const [ location, setLocation ] = useState("");
+    const [ artId, setArtId ] = useState(0);
     const [ artName, setArtName ] = useState("");
     const [ artDesc, setArtDesc ] = useState("");
     const [ artCant, setArtCant ] = useState("");
@@ -85,6 +87,9 @@ export const Storages = () => {
     }
 
     const validarArt = () => {
+        let metodo = "POST";
+        let url = urlArticles;
+
         if(artName == "") {
             alert("Ingresa un nombre válido");
         } else if(artDesc == "") {
@@ -93,12 +98,19 @@ export const Storages = () => {
             let parametros = {
                 title: artName,
                 description: artDesc,
+                cantidad: parseInt(artCant),
                 categoryId: selectedCategory,
                 storageId: selectedStorage
             }
             console.log(parametros);
 
-            enviarPeticion("POST", parametros, urlArticles, 3);
+            if(isUpdate){
+                metodo = "PUT";
+                url += '/'+artId;
+            }
+            console.log(url)
+
+            enviarPeticion(metodo, parametros, url, 3);
         }
     }
 
@@ -111,6 +123,7 @@ export const Storages = () => {
             },
             data: parametros
         }).then(function (respuesta) {
+            console.log(respuesta)
             switch(type){
                 case 1:
                     getCategories();
@@ -126,6 +139,8 @@ export const Storages = () => {
                     break;
                 case 3:
                     getArticles(selectedStorage);
+                    setArtId(0);
+                    setIsUpdate(false);
                     setArtDesc(""); 
                     setArtName("");
                     document.getElementById("articles").querySelector(".btn-close").click();
@@ -134,6 +149,21 @@ export const Storages = () => {
             }
         })
     }
+
+    const openUpdateModal = (articulo) => {
+        setIsUpdate(true);
+        setArtId(articulo.id);
+        setArtName(articulo.title);
+        setArtDesc(articulo.description);
+        setArtCant(articulo.cantidad);
+    };
+    
+    const openAddModal = () => {
+        setIsUpdate(false);
+        setArtName("");
+        setArtDesc("");
+        setArtCant(0);
+    };
 
     return (
         <div className="container-fluid">
@@ -193,7 +223,7 @@ export const Storages = () => {
                     
                     {selectedStorage ? (
                         <div className="d-flex justify-content-end">
-                            <button button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#articles">Añadir artículo</button>
+                            <button button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#articles" onClick={() => openAddModal()}>Añadir artículo</button>
                         </div>
                     ) : (<></>)}
                     <table className="table table-striped">
@@ -203,6 +233,7 @@ export const Storages = () => {
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th>Cantidad</th>
+                                <th>Acciones</th>
                                 {/*<th>Categoría</th>*/}
                             </tr>
                         </thead>
@@ -214,6 +245,7 @@ export const Storages = () => {
                                         <td>{at.title}</td>
                                         <td>{at.description}</td>
                                         <td>{at.cantidad}</td>
+                                        <td><button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#articles" onClick={() => openUpdateModal(at)}>Editar</button></td>
                                         {/*<td>{at.categoryId}</td>*/}
                                     </tr>
                                 ))
@@ -277,22 +309,22 @@ export const Storages = () => {
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                     <div className="modal-header">
-                        <h1 className="modal-title fs-5" id="staticBackdropLabel">Añadir Artículo</h1>
+                        <h1 className="modal-title fs-5" id="staticBackdropLabel">{isUpdate ? "Actualizar Artículo" : "Añadir Artículo"}</h1>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
                         <form>
                             <div className="mb-3">
                                 <label htmlFor="nombreCat" className="form-label">Nombre:</label>
-                                <input type="text" className="form-control" id="nombreCat" placeholder="Nombre del artículo" onInput={(e) => setArtName(e.target.value)} />
+                                <input type="text" className="form-control" id="nombreCat" placeholder="Nombre del artículo" value={artName} onInput={(e) => setArtName(e.target.value)} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="nombreCat" className="form-label">Descripción:</label>
-                                <input type="text" className="form-control" id="nombreCat" placeholder="Descripción del artículo" onInput={(e) => setArtDesc(e.target.value)} />
+                                <input type="text" className="form-control" id="nombreCat" placeholder="Descripción del artículo" value={artDesc} onInput={(e) => setArtDesc(e.target.value)} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="nombreCat" className="form-label">Cantidad:</label>
-                                <input type="number" className="form-control" id="nombreCat" placeholder="Cantidad de artículos" onInput={(e) => setArtCant(e.target.value)} />
+                                <input type="number" className="form-control" id="nombreCat" placeholder="Cantidad de artículos" value={artCant} onInput={(e) => setArtCant(e.target.value)} />
                             </div>
                         </form>
                     </div>
