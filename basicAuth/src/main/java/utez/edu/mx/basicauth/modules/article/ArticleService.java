@@ -60,7 +60,7 @@ public class ArticleService {
             Article article = optionalArticle.get();
             article.setTitle(articleDto.getTitle());
             article.setDescription(articleDto.getDescription());
-            article.setCantidad(article.getCantidad());
+            article.setCantidad(articleDto.getCantidad());
 
             Category category = categoryRepository.findById(articleDto.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada."));

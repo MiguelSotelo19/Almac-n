@@ -7,18 +7,24 @@ import Table from "react-bootstrap/Table";
 import Swal from "sweetalert2";
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import { Header } from "../components/Header";
 
 export const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = "tokenbearer.root.voidtoken";
   const [show, setShow] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", password: "", rol: "" });
   const [selectedUser, setSelectedUser] = useState(null);
 
   const handleClose = () => { setShow(false); setShowUpdate(false); };
-  const handleShow = () => setShow(true);
+  const handleShow = () => { setShow(true); setSelectedUser(null); };
+
+  const token = localStorage.getItem("token");
+
+  if(token == null){
+      navigate("/Almacen/IniciarSesion");
+  }
 
   useEffect(() => {
     fetchUsers();
@@ -90,6 +96,7 @@ export const Users = () => {
       });
       fetchUsers();
       handleClose();
+      setSelectedUser(null);
       Swal.fire("¡Usuario actualizado!", "El usuario se ha actualizado correctamente.", "success");
     } catch (error) {
       console.error("Error updating user:", error);
@@ -107,7 +114,8 @@ export const Users = () => {
   }
 
   return (
-    <div className="p-4" style={{ backgroundColor: '#3e4041', height: '100vh' }}>
+    <div className="p-4" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
+      <Header />
       <h1 className="text-2xl font-bold mb-4">Lista de Responsables de Almacen</h1>
       <Button onClick={handleShow}>Agregar Usuario</Button>
 

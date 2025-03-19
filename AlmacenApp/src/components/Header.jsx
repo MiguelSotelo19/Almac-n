@@ -15,6 +15,10 @@ export const Header  = () => {
                 <div className="d-flex align-items-center justify-content-center">
                     <p className="logo">Almacén</p>
                 </div>
+                <div className="d-flex align-items-center justify-content-between w-25">
+                    <button className="btn btn-primary" onClick={() => navigate("/Almacen/Almacenes")}>Almacenes</button>
+                    <button className="btn btn-primary" onClick={() => navigate("/Almacen/Usuarios")}>Usuarios</button>
+                </div>
                 <div className="d-flex align-items-center justify-content-center">
                     <button className="btn btn-danger" onClick={() => cerrarSesion()}>Cerrar sesión</button>
                 </div>

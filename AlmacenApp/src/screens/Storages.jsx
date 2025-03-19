@@ -5,6 +5,9 @@ import axios from 'axios';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
 import { Header } from "../components/Header";
+import { CategorySelector } from "../components/CategorySelector";
+import { StorageSelector } from "../components/StorageSelector";
+import { ArticleTable } from "../components/ArticleTable";
 
 export const Storages = () => {
     const urlStorage = 'http://127.0.0.1:8080/storages';
@@ -29,7 +32,7 @@ export const Storages = () => {
     const token = localStorage.getItem("token");
 
     if(token == null){
-        navigate("/Almacen/IniciarSesion");
+        navigate("/Almacen/");
     }
 
     useEffect(() => {
@@ -166,96 +169,13 @@ export const Storages = () => {
     };
 
     return (
-        <div className="container-fluid">
+        <div className="container-fluid" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
             <Header />
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
-                    <div className="card mb-4">
-                        <div className="card-body">
-                            <div className="d-lg-flex justify-content-between align-items-center">
-                                <span className="h4">Seleccionar Categoría</span>
-                            </div>
-                        </div>
-                        <div className="card p-3">
-                            <div className="card-body">
-                                <div className="d-flex justify-content-end">
-                                    <button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#categories">Añadir categoría</button>
-                                </div>
-                                {categories.map(cat => (
-                                    <div className="form-check" key={cat.id}>
-                                        <input type="radio" id={`cat_${cat.id}`} name="category" 
-                                            value={cat.id} className="form-check-input" 
-                                            onChange={() => getStorages(cat.id)} 
-                                            checked={selectedCategory === cat.id} />
-                                        <label className="form-check-label" htmlFor={`cat_${cat.id}`}>{cat.name}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {storages.length > 0 || selectedCategory ? (
-                        <div className="card mb-4">
-                            <div className="card-body">
-                                <div className="d-lg-flex justify-content-between align-items-center">
-                                    <span className="h4">Seleccionar Almacén</span>
-                                </div>
-                            </div>
-                            <div className="card p-3">
-                                <div className="card-body">
-                                    <div className="d-flex justify-content-end">
-                                        <button button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#storages">Añadir almacén</button>
-                                    </div>
-                                    {storages.map(st => (
-                                        <div className="form-check" key={st.id}>
-                                            <input type="radio" id={`st_${st.id}`} name="storage" 
-                                                value={st.id} className="form-check-input" 
-                                                onChange={() => getArticles(st.id)} 
-                                                checked={selectedStorage === st.id} />
-                                            <label className="form-check-label" htmlFor={`st_${st.id}`}>{st.location}</label>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    ): (<></>)}
-
-                    
-                    {selectedStorage ? (
-                        <div className="d-flex justify-content-end">
-                            <button button className="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#articles" onClick={() => openAddModal()}>Añadir artículo</button>
-                        </div>
-                    ) : (<></>)}
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Cantidad</th>
-                                <th>Acciones</th>
-                                {/*<th>Categoría</th>*/}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {articles.length > 0 ? (
-                                articles.map(at => (
-                                    <tr key={at.id}>
-                                        <td>{at.id}</td>
-                                        <td>{at.title}</td>
-                                        <td>{at.description}</td>
-                                        <td>{at.cantidad}</td>
-                                        <td><button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#articles" onClick={() => openUpdateModal(at)}>Editar</button></td>
-                                        {/*<td>{at.categoryId}</td>*/}
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={4}>Selecciona una categoría y un almacén</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
+                <StorageSelector storages={storages} selectedStorage={selectedStorage} getArticles={getArticles} />
+                <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} />
                 </div>
             </div>
 
@@ -330,7 +250,7 @@ export const Storages = () => {
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-primary" onClick={() => validarArt()}>Añadir</button>
+                        <button type="button" className="btn btn-primary" onClick={() => validarArt()}>{isUpdate ? "Actualizar" : "Añadir"}</button>
                     </div>
                     </div>
                 </div>
