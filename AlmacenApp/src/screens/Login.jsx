@@ -6,7 +6,7 @@ import banner from "../assets/banner.jpeg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";
+//import Swal from 'sweetalert2';
 import { useEffect } from "react";
 
 
