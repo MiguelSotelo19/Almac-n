@@ -23,7 +23,7 @@ export const Login = () => {
 
     useEffect(() => {
         if (isAuthenticated()) {
-            navigate("/Almacen/Inicio", { replace: true });
+            navigate("/Almacen/Almacenes", { replace: true });
         }
     }, []);
 
