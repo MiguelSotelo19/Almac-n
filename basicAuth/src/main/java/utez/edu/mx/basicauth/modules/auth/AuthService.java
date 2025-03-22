@@ -34,6 +34,10 @@ public class AuthService {
         return userRepository.findAllNonAdminUsers();
     }
 
+    public List<User> getResponsables(){
+        return userRepository.findAllByResponsable();
+    }
+
 
     public User updateUser(Long id, LoginDTO userDTO) {
         Optional<User> existingUser = userRepository.findById(id);
