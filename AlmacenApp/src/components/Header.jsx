@@ -4,8 +4,8 @@ export const Header  = () => {
     const navigate = useNavigate();
 
     const cerrarSesion = () => {
-        localStorage.removeItem("token"); 
-        navigate("/Almacen/");
+        localStorage.removeItem("token");
+        navigate("/");
     }
 
     return(

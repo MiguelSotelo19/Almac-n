@@ -4,6 +4,7 @@ public class StoragesDTO {
     private Long id;
     private String location;
     private Long categoryId;
+    private Long userId;
 
     public StoragesDTO() {}
 
@@ -12,10 +13,11 @@ public class StoragesDTO {
         this.location = location;
     }
 
-    public StoragesDTO(Long id, String location, Long categoryId) {
+    public StoragesDTO(Long id, String location, Long categoryId, Long userId ){
         this.id = id;
         this.location = location;
         this.categoryId = categoryId;
+        this.userId = userId;
     }
 
     public Long getId() { return id; }
@@ -27,8 +29,14 @@ public class StoragesDTO {
     public Long getCategoryId() {
         return categoryId;
     }
-
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

@@ -26,6 +26,11 @@ public class AuthController {
         return authService.getAllUsers();
     }
 
+    @GetMapping("/username/{username}")
+    public User getUser(@PathVariable String username) {
+        return authService.getUser(username);
+    }
+
     @GetMapping("/users/responsables")
     public List<User> getResponsables(){
         return authService.getResponsables();

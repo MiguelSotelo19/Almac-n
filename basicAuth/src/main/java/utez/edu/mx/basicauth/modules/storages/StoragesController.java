@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import utez.edu.mx.basicauth.modules.storages.dto.StoragesDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/storages")
@@ -35,6 +36,13 @@ public class StoragesController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteStorage(@PathVariable Long id) {
         return storagesService.deleteStorage(id);
+    }
+
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<StoragesDTO> findStorageByUserId(@PathVariable Long userId) {
+        Optional<StoragesDTO> storagesDTO = storagesService.findStorageByUserId(userId);
+        return storagesDTO.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(404).body(null));
     }
 
 }

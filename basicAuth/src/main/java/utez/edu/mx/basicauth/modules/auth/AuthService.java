@@ -34,6 +34,10 @@ public class AuthService {
         return userRepository.findAllNonAdminUsers();
     }
 
+    public User getUser(String username){
+        return userRepository.findByUsername(username);
+    }
+
     public List<User> getResponsables(){
         return userRepository.findAllByResponsable();
     }
