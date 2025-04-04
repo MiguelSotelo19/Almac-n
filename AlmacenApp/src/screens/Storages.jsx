@@ -9,6 +9,8 @@ import { CategorySelector } from "../components/CategorySelector";
 import { StorageSelector } from "../components/StorageSelector";
 import { ArticleTable } from "../components/ArticleTable";
 
+import "./css/Storages.css";
+
 export const Storages = () => {
     const urlStorage = 'http://127.0.0.1:8080/storages';
     const urlCategories = 'http://127.0.0.1:8080/categories';
@@ -49,6 +51,7 @@ export const Storages = () => {
     const getStorages = async (id) => {
         setArticles([]);
         setSelectedCategory(id);
+        setSelectedStorage(null);
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -174,7 +177,7 @@ export const Storages = () => {
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
                 <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
-                <StorageSelector storages={storages} selectedStorage={selectedStorage} getArticles={getArticles} />
+                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} />
                 <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} />
                 </div>
             </div>

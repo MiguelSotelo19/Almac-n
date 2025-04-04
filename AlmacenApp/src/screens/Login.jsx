@@ -4,7 +4,7 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-//import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 import { useEffect } from "react";
 
 import banner from "../assets/banner.jpeg";
@@ -23,7 +23,7 @@ export const Login = () => {
 
     useEffect(() => {
         if (isAuthenticated()) {
-            navigate("/Almacen/Inicio", { replace: true });
+            navigate("/Almacen/", { replace: true });
         }
     }, []);
 
@@ -55,7 +55,7 @@ export const Login = () => {
                     timer: 2000,
                     showConfirmButton: false,
                 }).then(() => {
-                    navigate("/Almacen/");
+                    navigate("/Almacen/Almacenes");
                 });
             }
         } catch (error) {
