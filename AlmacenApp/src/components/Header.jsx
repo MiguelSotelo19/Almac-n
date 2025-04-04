@@ -6,7 +6,7 @@ export const Header = () => {
 
     const cerrarSesion = () => {
         localStorage.removeItem("token");
-        navigate("/Almacen/IniciarSesion");
+        navigate("/Almacen/");
     };
 
     return (

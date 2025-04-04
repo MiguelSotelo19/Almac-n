@@ -18,7 +18,7 @@ export const Users = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const handleClose = () => { setShow(false); setShowUpdate(false); };
-  const handleShow = () => { setShow(true); setSelectedUser(null); };
+  const handleShow = () => { setShow(true); setSelectedUser(null); setNewUser({ username: "", password: "", rol: "" }) };
 
   const token = localStorage.getItem("token");
 
