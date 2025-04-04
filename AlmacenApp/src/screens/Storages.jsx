@@ -8,6 +8,7 @@ import { Header } from "../components/Header";
 import { CategorySelector } from "../components/CategorySelector";
 import { StorageSelector } from "../components/StorageSelector";
 import { ArticleTable } from "../components/ArticleTable";
+import Swal from "sweetalert2";
 
 import "./css/Storages.css";
 
@@ -135,13 +136,21 @@ export const Storages = () => {
                     getCategories();
                     setCatName(""); 
                     document.getElementById("categories").querySelector(".btn-close").click();
-                    alert("Categoría registrada con éxito");
+                    Swal.fire({
+                        title:'Categoria registrada',
+                        text: 'La categoria fue agregada con éxito',
+                        icon:'success'
+                    })
                     break;
                 case 2:
                     getStorages(selectedCategory);
                     setLocation(""); 
                     document.getElementById("storages").querySelector(".btn-close").click();
-                    alert("Almacén registrado con éxito");                    
+                    Swal.fire({
+                        title:'Almacén registrada',
+                        text: 'El nuevo almacén fue agregado con éxito',
+                        icon:'success'
+                    })                    
                     break;
                 case 3:
                     getArticles(selectedStorage);
@@ -150,7 +159,11 @@ export const Storages = () => {
                     setArtDesc(""); 
                     setArtName("");
                     document.getElementById("articles").querySelector(".btn-close").click();
-                    alert("Artículo registrado con éxito");                    
+                    Swal.fire({
+                        title: isUpdate ? 'Articulo actualizado': 'Articulo registrado',
+                        text: isUpdate ? 'El articulo fue actualizado con éxito': 'El articulo fue agregado con éxito',
+                        icon:'success'
+                    })
                     break;
             }
         })

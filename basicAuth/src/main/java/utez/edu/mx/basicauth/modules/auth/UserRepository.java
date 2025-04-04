@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM user WHERE rol != 'ADMIN'", nativeQuery = true)
     List<User> findAllNonAdminUsers();
+
+    @Query(value = "SELECT * FROM user WHERE rol = 'RESPONSABLE'", nativeQuery = true)
+    List<User> findAllByResponsable();
 }
