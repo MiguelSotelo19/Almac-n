@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+.header {
+    /*background: linear-gradient(90deg, #ffcc00, #ff6666, #66ccff);*/
+    background: linear-gradient(90deg, #ff6666);
+    background-size: 400% 400%;
+    animation: gradientShift 10s ease infinite;
+    border-bottom: 3px solid #333;
+    font-family: 'Poppins', sans-serif;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+@keyframes gradientShift {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px #fff, 0 0 10px #ffd700, 0 0 15px #ff6600;
+    }
+    to {
+        text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff3300, 0 0 30px #ff0066;
+    }
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cool-btn {
+    background-color: #ffffff;
+    color: #333;
+    border: none;
+    padding: 10px 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.cool-btn:hover {
+    background-color: #000;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.logout-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.logout-btn:hover {
+    background-color: #cc0000;
+    transform: scale(1.1);
+}

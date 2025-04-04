@@ -10,15 +10,20 @@ import { StorageSelector } from "../components/StorageSelector";
 import { ArticleTable } from "../components/ArticleTable";
 import Swal from "sweetalert2";
 
+import "./css/Storages.css";
+
 export const Storages = () => {
     const urlStorage = 'http://127.0.0.1:8080/storages';
     const urlCategories = 'http://127.0.0.1:8080/categories';
     const urlArticles = 'http://127.0.0.1:8080/articles';
+    const urlUsers = 'http://127.0.0.1:8080/api/auth/users';
     const navigate = useNavigate();
 
     const [ storages, setStorages ] = useState([]);
     const [ categories, setCategories ] = useState([]);
     const [ articles, setArticles ] = useState([]);
+    const [ user, setUser ] = useState([]);
+    const [ users, setUsers ] = useState([]);
     const [ selectedCategory, setSelectedCategory ] = useState(null);
     const [ selectedStorage, setSelectedStorage ] = useState(null);
     const [isUpdate, setIsUpdate] = useState(false);
@@ -29,6 +34,7 @@ export const Storages = () => {
     const [ artName, setArtName ] = useState("");
     const [ artDesc, setArtDesc ] = useState("");
     const [ artCant, setArtCant ] = useState("");
+    const [ userId, setUserId] = useState(0);
 
     const token = localStorage.getItem("token");
 
@@ -38,8 +44,17 @@ export const Storages = () => {
 
     useEffect(() => {
         getCategories();
+        getUsers();
     }, []);
     
+    const getUsers = async () => {
+        const respuesta = await axios.get(urlUsers, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log(respuesta.data)
+        setUsers(respuesta.data);
+    }
+
     const getCategories = async () => {
         const respuesta = await axios.get(urlCategories, {
             headers: { Authorization: `Bearer ${token}` }
@@ -50,14 +65,18 @@ export const Storages = () => {
     const getStorages = async (id) => {
         setArticles([]);
         setSelectedCategory(id);
+        setSelectedStorage(null);
+        console.log("getStorages: ",token)
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("getStorages: ",respuesta)
         setStorages(respuesta.data.filter(st => st.categoryId == id));
     };
 
-    const getArticles = async (id) => {
+    const getArticles = async (id, userIdSt) => {
         setSelectedStorage(id);
+        setUser(users.find(us => us.id == userIdSt).username);
         const respuesta = await axios.get(urlArticles, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -79,10 +98,13 @@ export const Storages = () => {
     const validarSt = () => {
         if(location == "") {
             alert("Ingresa una localización válida");
+        } if(userId == "") {
+            alert("Selecciona un usuario");
         } else {
             let parametros = {
                 location: location,
-                categoryId: selectedCategory
+                categoryId: selectedCategory,
+                userId: userId
             }
             console.log(parametros);
 
@@ -187,8 +209,8 @@ export const Storages = () => {
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
                 <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
-                <StorageSelector storages={storages} selectedStorage={selectedStorage} getArticles={getArticles} />
-                <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} />
+                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} />
+                <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} />
                 </div>
             </div>
 
@@ -228,6 +250,17 @@ export const Storages = () => {
                                 <label htmlFor="locationSt" className="form-label">Localización:</label>
                                 <input type="text" className="form-control" id="locationSt" placeholder="Localización del almacén" onInput={(e) => setLocation(e.target.value)} />
                             </div>  
+                            <div className="mb-3">
+                                <label htmlFor="userSelect" className="form-label">Seleccionar un responsable de almacén:</label>
+                                <select className="form-select" id="userSelect" onChange={(e) => setUserId(e.target.value)}>
+                                    <option value="">-- Selecciona un usuario --</option>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.username}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </form>
                     </div>
                     <div className="modal-footer">

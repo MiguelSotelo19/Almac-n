@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    background-color: #f5f5f5;
+}
+
+/* --- Tarjetas generales --- */
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: none;
+    background: #ffffff;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.01);
+}
+
+/* --- Encabezados de sección --- */
+.card-body > .h4 {
+    font-weight: bold;
+    color: #333;
+    text-shadow: 1px 1px 2px #ffcc00;
+}
+
+/* --- Botones estilosos --- */
+.btn-success {
+    background: linear-gradient(to right, #4caf50, #81c784);
+    border: none;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.btn-success:hover {
+    background: linear-gradient(to right, #388e3c, #66bb6a);
+    transform: scale(1.05);
+}
+
+.btn-primary {
+    background: linear-gradient(to right, #2196f3, #64b5f6);
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #1976d2, #42a5f5);
+    transform: scale(1.05);
+}
+
+/* --- Inputs radio personalizados --- */
+.form-check-input {
+    width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    border: 2px solid #888;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #ffcc00;
+    border-color: #333;
+}
+
+.form-check-label {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* --- Tabla de artículos --- */
+.table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.table thead {
+    background-color: #ffcc00;
+    color: #000;
+    font-weight: bold;
+}
+
+.table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* --- Responsive friendly --- */
+@media (max-width: 768px) {
+    .card-body > .h4 {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 8px 14px;
+    }
+
+    .form-check-label {
+        font-size: 0.9rem;
+    }
+
+    .table th, .table td {
+        font-size: 0.9rem;
+    }
+}

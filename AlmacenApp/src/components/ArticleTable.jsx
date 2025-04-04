@@ -1,5 +1,5 @@
 
-export const ArticleTable = ({ articles, selectedStorage, openAddModal, openUpdateModal }) => {
+export const ArticleTable = ({ articles, selectedStorage, openAddModal, openUpdateModal, responsable }) => {
     return (
         <>
         {selectedStorage ? (
@@ -9,6 +9,9 @@ export const ArticleTable = ({ articles, selectedStorage, openAddModal, openUpda
         ) : (<></>)}
         <table className="table table-striped">
             <thead>
+                <tr>
+                    <th colSpan={5}>Responsable de almacén: {responsable}</th>
+                </tr>
                 <tr>
                     <th>#</th>
                     <th>Nombre</th>
@@ -32,7 +35,7 @@ export const ArticleTable = ({ articles, selectedStorage, openAddModal, openUpda
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={4}>Selecciona una categoría y un almacén</td>
+                        <td colSpan={5}>Selecciona una categoría y un almacén</td>
                     </tr>
                 )}
             </tbody>
