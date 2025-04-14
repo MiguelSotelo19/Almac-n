@@ -63,6 +63,7 @@ export const Storages = () => {
     };
 
     const getStorages = async (id) => {
+        setUser([]);
         setArticles([]);
         setSelectedCategory(id);
         setSelectedStorage(null);
