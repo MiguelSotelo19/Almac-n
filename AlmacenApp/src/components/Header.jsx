@@ -18,6 +18,7 @@ export const Header = () => {
                 <div className="nav-buttons">
                     <button className="cool-btn" onClick={() => navigate("/Almacen/Almacenes")}>Almacenes</button>
                     <button className="cool-btn" onClick={() => navigate("/Almacen/Usuarios")}>Usuarios</button>
+                    <button className="cool-btn" onClick={() => navigate("/Almacen/Bitacora")}>Bitacora</button>
                 </div>
                 <div>
                     <button className="logout-btn" onClick={cerrarSesion}>Cerrar sesión</button>

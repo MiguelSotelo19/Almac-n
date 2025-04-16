@@ -119,7 +119,7 @@ export const Users = () => {
       <h1 className="text-2xl font-bold mb-4">Lista de Responsables de Almacen</h1>
       <Button onClick={handleShow}>Agregar Usuario</Button>
 
-      {/* Modal para agregar o actualizar usuarios */}
+      {/* Modal para agregar o actualizar usuarios  */}
       <Modal show={show || showUpdate} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>{showUpdate ? "Actualizar Usuario" : "Agregar Usuario"}</Modal.Title>
@@ -167,7 +167,7 @@ export const Users = () => {
         <thead>
           <tr>
             <th>Nombre de Usuario</th>
-            <th>Contraseña</th>
+            {/* <th>Contraseña</th> */}
             <th>Rol</th>
             <th>Acciones</th>
           </tr>
@@ -176,7 +176,7 @@ export const Users = () => {
           {users.map(user => (
             <tr key={user.id}>
               <td>{user.username}</td>
-              <td>{user.password}</td>
+              {/* <td>{user.password}</td>  dijo que no se mostrara la contrase*/}
               <td>{user.rol}</td>
               <td>
                 <Button variant="danger" onClick={() => deleteUser(user.id)}>Eliminar</Button>{' '}

@@ -6,6 +6,7 @@ import { Login } from './screens/Login';
 import { Storages } from './screens/Storages';
 import { Users } from './screens/Users';
 import { StorageUser } from './screens/StorageUser';
+import { Bitacora } from './screens/Bitacora';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Router>
@@ -14,6 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path='/Almacen/Responsable' element={<StorageUser />}/>
       <Route path='/Almacen/Almacenes' element={<Storages />}/>
       <Route path='/ALmacen/Usuarios' element={<Users />}/>
+      <Route path='/Almacen/Bitacora' element={<Bitacora />}/>
     </Routes>
   </Router>
 )
