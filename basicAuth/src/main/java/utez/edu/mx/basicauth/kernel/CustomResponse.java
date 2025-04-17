@@ -22,11 +22,11 @@ public class CustomResponse {
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getCreatedResponse() {
+    public ResponseEntity<?> getCreatedResponse(Object data) {
         body = new HashMap<>();
-        body.put("message", "El registro se realizó correctamente");
+        body.put("message", "Registro creado exitosamente");
         body.put("status", "CREATED");
-
+        body.put("data", data);
         return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
 

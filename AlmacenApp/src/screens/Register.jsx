@@ -1,79 +1,68 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import Swal from 'sweetalert2';
-import { useEffect } from "react";
-
 import banner from "../assets/banner.jpeg";
 
-export const Login = () => {
-    const urlLogin = 'http://127.0.0.1:8080/api/auth/login';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
+export const Register = () => {
     const navigate = useNavigate();
     const [nombre_usuario, setNombreUsuario] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-    const isAuthenticated = () => {
-        return !!localStorage.getItem("token"); 
-    };
-    
-
-    useEffect(() => {
-        if (isAuthenticated()) {
-            navigate("/Almacen/", { replace: true });
-        }
-    }, []);
-
-    const handleLogin = async () => {
-        if (!nombre_usuario || !password) {
+    const handleRegister = async () => {
+        if (!nombre_usuario || !password || !confirmPassword) {
             Swal.fire({
                 icon: "warning",
                 title: "Campos vacíos",
-                text: "Por favor, ingresa tu usuario y contraseña.",
+                text: "Por favor, completa todos los campos.",
             });
             return;
         }
-    
-        try {
-            const response = await axios.post(urlLogin, {
-                "username": nombre_usuario,
-                "password": password,
-            }, {
-                withCredentials: true
+
+        if (password !== confirmPassword) {
+            Swal.fire({
+                icon: "error",
+                title: "Contraseñas no coinciden",
+                text: "Las contraseñas deben ser iguales.",
             });
-    
-            if (response.status === 200) {
-                localStorage.setItem("token", response.data.data);
-    
+            return;
+        }
+
+        try {
+            const response = await axios.post("http://127.0.0.1:8080/api/auth/register", {
+                username: nombre_usuario,
+                password: password,
+                rol: "RESPONSABLE"
+            });
+
+            if (response.status === 201) {
                 Swal.fire({
                     icon: "success",
-                    title: "Inicio de sesión exitoso",
-                    text: "Bienvenido a Almacén 👻",
-                    timer: 2000,
-                    showConfirmButton: false,
+                    title: "Registro exitoso",
+                    text: "Ahora puedes iniciar sesión.",
                 }).then(() => {
-                    navigate("/Almacen/Almacenes");
+                    navigate("/Almacen/"); // Redirige al login
                 });
             }
         } catch (error) {
-            console.error(error);
             Swal.fire({
                 icon: "error",
-                title: "Error en el inicio de sesión",
-                text: "Usuario o contraseña incorrectos.",
+                title: "Error en el registro",
+                text: error.response?.data?.message || "Ocurrió un error al registrarse.",
             });
         }
     };
-    
+
     return (
         <div className="d-flex vh-100">
             <div className="flex-grow-1 d-flex align-items-center justify-content-center">
                 <div className="card p-4 w-50 d-flex flex-column">
                     <div className="card-body d-flex flex-column align-items-center justify-content-center gap-3" style={{ flex: "1 0 auto" }}>
-                        <h2 className="card-title mb-3">Almacén</h2>
+                        <h2 className="card-title mb-3">Registro</h2>
                         <label className="w-100">
                             Usuario:
                             <input
@@ -94,13 +83,23 @@ export const Login = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </label>
-                        <button className="btn btn-primary w-100" onClick={handleLogin}>
-                            Iniciar Sesión
+                        <label className="w-100 mt-4">
+                            Confirmar Contraseña:
+                            <input
+                                type="password"
+                                className="form-control mt-1"
+                                placeholder="Confirma tu contraseña"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                        </label>
+                        <button className="btn btn-primary w-100" onClick={handleRegister}>
+                            Registrarse
                         </button>
                     </div>
 
                     <div className="mt-4 text-center">
-                    ¿No tienes una cuenta? <Link to="/Almacen/registro">¡Regístrate aquí!</Link>
+                        ¿Ya tienes una cuenta? <Link to="/Almacen/">Inicia sesión aquí</Link>
                     </div>
                 </div>
             </div>
@@ -111,4 +110,3 @@ export const Login = () => {
         </div>
     );
 };
-

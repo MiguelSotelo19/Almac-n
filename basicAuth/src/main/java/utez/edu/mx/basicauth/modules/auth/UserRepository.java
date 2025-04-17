@@ -9,8 +9,12 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    boolean existsByUsername(String username); //Sirve para el register
+
     @Query(value = "SELECT * FROM user WHERE username = :username AND password = :password;", nativeQuery = true)
     User findByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
+
 
     @Query(value = "SELECT * FROM user WHERE username = :username;", nativeQuery = true)
     User findByUsername(@Param("username") String username);

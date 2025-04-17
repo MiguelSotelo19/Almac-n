@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,6 +21,11 @@ import utez.edu.mx.basicauth.security.interceptors.CustomInterceptor;
 @EnableWebSecurity
 @Configuration
 public class MainSecurity implements WebMvcConfigurer {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() { //Esto es para las contraseñas encriptadas
+        return new BCryptPasswordEncoder();
+    }
     //Apartado para importar nuestros filtros, interceptores, repositorios
     @Autowired
     private AuthFilter authFilter;
@@ -28,7 +35,8 @@ public class MainSecurity implements WebMvcConfigurer {
 
     private final static String[] WHITE_LIST = {
             "/api/test",
-            "/api/auth/login"
+            "/api/auth/login",
+            "/api/auth/register"
     };
 
     public static String[] getWHITE_LIST() {
@@ -65,4 +73,5 @@ public class MainSecurity implements WebMvcConfigurer {
     }
 
     //Siguiente -> Crear un endpoint/URI/ruta/path para probar la seguridad
+
 }
