@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import utez.edu.mx.basicauth.modules.auth.dto.LoginDTO;
+import utez.edu.mx.basicauth.modules.auth.dto.RegisterDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,10 @@ public class AuthController {
         return authService.login(dto);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterDTO dto) {
+        return authService.register(dto);
+    }
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return authService.getAllUsers();
