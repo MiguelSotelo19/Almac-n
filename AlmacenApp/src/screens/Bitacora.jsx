@@ -22,7 +22,6 @@ export const Bitacora = () => {
           },
         });
         setBitacora(response.data);
-        
       } catch (error) {
         console.error("Error al obtener la bitácora:", error);
       }
