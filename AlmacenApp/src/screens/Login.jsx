@@ -59,12 +59,25 @@ export const Login = () => {
                 });
             }
         } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: "error",
-                title: "Error en el inicio de sesión",
-                text: "Usuario o contraseña incorrectos.",
-            });
+            if (error.response) {
+                if (error.response.status === 401) {
+                    navigate("/401");
+                } else if (error.response.status === 403) {
+                    navigate("/403");
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error en el inicio de sesión",
+                        text: "Usuario o contraseña incorrectos.",
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error de conexión",
+                    text: "No se pudo conectar con el servidor.",
+                });
+            }
         }
     };
     

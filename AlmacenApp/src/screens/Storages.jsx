@@ -11,6 +11,8 @@ import { ArticleTable } from "../components/ArticleTable";
 import Swal from "sweetalert2";
 
 import "./css/Storages.css";
+import { E403 } from "./E403";
+import { E401 } from "./E401";
 
 export const Storages = () => {
     const urlStorage = 'http://127.0.0.1:8080/storages';
@@ -39,7 +41,9 @@ export const Storages = () => {
     const token = localStorage.getItem("token");
 
     if(token == null){
-        navigate("/Almacen/");
+        return(
+            <E401/>
+        )
     }
 
     useEffect(() => {

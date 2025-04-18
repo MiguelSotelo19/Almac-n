@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { Header } from "../components/Header";
+import { E403 } from "./E403";
+import { E401 } from "./E401";
 
 export const Users = () => {
   const [users, setUsers] = useState([]);
@@ -27,7 +29,9 @@ export const Users = () => {
   const token = localStorage.getItem("token");
 
   if(token == null){
-      navigate("/Almacen/IniciarSesion");
+    return(
+        <E401/>
+      )
   }
 
   useEffect(() => {
@@ -187,7 +191,6 @@ export const Users = () => {
         <thead>
           <tr>
             <th>Nombre de Usuario</th>
-            {/* <th>Contraseña</th> */}
             <th>Rol</th>
             <th>Acciones</th>
           </tr>
@@ -196,7 +199,6 @@ export const Users = () => {
           {users.map(user => (
             <tr key={user.id}>
               <td>{user.username}</td>
-              {/* <td>{user.password}</td> */}
               <td>{user.rol}</td>
               <td>
                 <Button variant="danger" onClick={() => deleteUser(user.id)}>Eliminar</Button>{' '}
