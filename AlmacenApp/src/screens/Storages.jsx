@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
@@ -18,6 +18,8 @@ export const Storages = () => {
     const urlArticles = 'http://127.0.0.1:8080/articles';
     const urlUsers = 'http://127.0.0.1:8080/api/auth/users';
     const navigate = useNavigate();
+    const modalRef = useRef(null);
+    const [modalAbierto, setModalAbierto] = useState(false);
 
     const [ storages, setStorages ] = useState([]);
     const [ categories, setCategories ] = useState([]);
@@ -26,7 +28,7 @@ export const Storages = () => {
     const [ users, setUsers ] = useState([]);
     const [ selectedCategory, setSelectedCategory ] = useState(null);
     const [ selectedStorage, setSelectedStorage ] = useState(null);
-    const [isUpdate, setIsUpdate] = useState(false);
+    const [ isUpdate, setIsUpdate ] = useState(false);
 
     const [ catName, setCatName ] = useState("");
     const [ location, setLocation ] = useState("");
@@ -35,6 +37,7 @@ export const Storages = () => {
     const [ artDesc, setArtDesc ] = useState("");
     const [ artCant, setArtCant ] = useState("");
     const [ userId, setUserId] = useState(0);
+    const [ stuserId, setStUserId] = useState(0);
 
     const token = localStorage.getItem("token");
 
@@ -46,12 +49,30 @@ export const Storages = () => {
         getCategories();
         getUsers();
     }, []);
+
+    useEffect(() => {
+        const modal = modalRef.current;
+        console.log(modal)
+        const handleShow = () => setModalAbierto(true);
+        const handleHide = () => setModalAbierto(false);
+
+        if (modal) {
+            modal.addEventListener("shown.bs.modal", handleShow);
+            modal.addEventListener("hidden.bs.modal", handleHide);
+        }
+
+        return () => {
+            if (modal) {
+                modal.removeEventListener("shown.bs.modal", handleShow);
+                modal.removeEventListener("hidden.bs.modal", handleHide);
+            }
+        };
+    }, []);
     
     const getUsers = async () => {
         const respuesta = await axios.get(urlUsers, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(respuesta.data)
         setUsers(respuesta.data);
     }
 
@@ -67,11 +88,9 @@ export const Storages = () => {
         setArticles([]);
         setSelectedCategory(id);
         setSelectedStorage(null);
-        console.log("getStorages: ",token)
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log("getStorages: ",respuesta)
         setStorages(respuesta.data.filter(st => st.categoryId == id));
     };
 
@@ -107,7 +126,6 @@ export const Storages = () => {
                 categoryId: selectedCategory,
                 userId: userId
             }
-            console.log(parametros);
 
             enviarPeticion("POST", parametros, urlStorage, 2);
         }
@@ -129,13 +147,11 @@ export const Storages = () => {
                 categoryId: selectedCategory,
                 storageId: selectedStorage
             }
-            console.log(parametros);
 
             if(isUpdate){
                 metodo = "PUT";
                 url += '/'+artId;
             }
-            console.log(url)
 
             enviarPeticion(metodo, parametros, url, 3);
         }
@@ -150,7 +166,6 @@ export const Storages = () => {
             },
             data: parametros
         }).then(function (respuesta) {
-            console.log(respuesta)
             switch(type){
                 case 1:
                     getCategories();
@@ -173,7 +188,7 @@ export const Storages = () => {
                     })                    
                     break;
                 case 3:
-                    getArticles(selectedStorage);
+                    getArticles(selectedStorage, stuserId);
                     setArtId(0);
                     setIsUpdate(false);
                     setArtDesc(""); 
@@ -186,6 +201,9 @@ export const Storages = () => {
                     })
                     break;
             }
+        })
+        .catch((err) => {
+            console.error("Error en la petición: ",err)
         })
     }
 
@@ -204,14 +222,22 @@ export const Storages = () => {
         setArtCant(0);
     };
 
+    
+    useEffect(() => {
+        if(modalAbierto){
+            setLocation("");
+            setUserId("");
+        }
+    }, [modalAbierto]);
+
     return (
-        <div className="container-fluid" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
+        <div className="container-fluid p-4" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
             <Header />
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
                 <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
-                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} />
-                <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} />
+                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} setStUserId={setStUserId} modalAbierto={modalAbierto} />
+                <ArticleTable articles={articles} selectedStorage={selectedStorage} getArticles={getArticles} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} stuserId={stuserId} />
                 </div>
             </div>
 
@@ -238,7 +264,7 @@ export const Storages = () => {
                 </div>
             </div>
 
-            <div className="modal fade" id="storages" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal fade" ref={modalRef} id="storages" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                     <div className="modal-header">
@@ -249,12 +275,12 @@ export const Storages = () => {
                         <form>
                             <div className="mb-3">
                                 <label htmlFor="locationSt" className="form-label">Localización:</label>
-                                <input type="text" className="form-control" id="locationSt" placeholder="Localización del almacén" onInput={(e) => setLocation(e.target.value)} />
+                                <input type="text" className="form-control" id="locationSt" placeholder="Localización del almacén" value={location} onInput={(e) => setLocation(e.target.value)} />
                             </div>  
                             <div className="mb-3">
                                 <label htmlFor="userSelect" className="form-label">Seleccionar un responsable de almacén:</label>
-                                <select className="form-select" id="userSelect" onChange={(e) => setUserId(e.target.value)}>
-                                    <option value="">-- Selecciona un usuario --</option>
+                                <select className="form-select" value={userId} id="userSelect" onChange={(e) => setUserId(e.target.value)}>
+                                    <option id="default" value="">-- Selecciona un usuario --</option>
                                     {users.map((user) => (
                                         <option key={user.id} value={user.id}>
                                             {user.username}

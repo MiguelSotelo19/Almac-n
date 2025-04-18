@@ -21,7 +21,6 @@ export const Bitacora = () => {
           },
         });
         setBitacora(response.data);
-        console.log("Datos de bitácora recibidos:", response.data);
       } catch (error) {
         console.error("Error al obtener la bitácora:", error);
       }
