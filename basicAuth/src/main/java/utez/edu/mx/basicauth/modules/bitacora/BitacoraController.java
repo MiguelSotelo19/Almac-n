@@ -1,9 +1,8 @@
 package utez.edu.mx.basicauth.modules.bitacora;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,5 +15,11 @@ public class BitacoraController {
     @GetMapping
     public List<Bitacora> obtenerBitacora(){
         return bitacoraService.obtenerTodas();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> eliminarBitacora(@RequestHeader("Authorization") String authHeader) {
+        bitacoraService.eliminarTodaLaBitacora();
+        return ResponseEntity.noContent().build();
     }
 }

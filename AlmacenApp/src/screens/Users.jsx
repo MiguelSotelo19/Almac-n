@@ -14,11 +14,15 @@ export const Users = () => {
   const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
-  const [newUser, setNewUser] = useState({ username: "", password: "", rol: "" });
+  const [newUser, setNewUser] = useState({ username: "", password: "", rol: "RESPONSABLE" });
   const [selectedUser, setSelectedUser] = useState(null);
 
   const handleClose = () => { setShow(false); setShowUpdate(false); };
-  const handleShow = () => { setShow(true); setSelectedUser(null); setNewUser({ username: "", password: "", rol: "" }) };
+  const handleShow = () => { 
+    setShow(true); 
+    setSelectedUser(null); 
+    setNewUser({ username: "", password: "", rol: "RESPONSABLE" }); 
+  };
 
   const token = localStorage.getItem("token");
 
@@ -77,7 +81,7 @@ export const Users = () => {
 
   const handleAddUser = async () => {
     try {
-      await axios.post("http://localhost:8080/api/auth/users", newUser, {
+      await axios.post("http://localhost:8080/api/auth/register", newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
@@ -91,7 +95,12 @@ export const Users = () => {
 
   const handleUpdateUser = async () => {
     try {
-      await axios.put(`http://localhost:8080/api/auth/users/${selectedUser.id}`, selectedUser, {
+      const userToSend = { ...selectedUser };
+      if (!userToSend.password || userToSend.password.trim() === "") {
+        delete userToSend.password;
+      }
+  
+      await axios.put(`http://localhost:8080/api/auth/users/${selectedUser.id}`, userToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
@@ -131,28 +140,39 @@ export const Users = () => {
               <Form.Control
                 type="text"
                 name="username"
+                pattern="^[A-Za-z]{2,}$"
+                title="Solo letras sin acentos, sin espacios, puntos ni comas."
                 value={selectedUser ? selectedUser.username : newUser.username}
                 onChange={handleInputChange}
-              />
+                isInvalid={
+                  (selectedUser ? selectedUser.username : newUser.username) &&
+                  !/^[A-Za-z]{2,}$/.test(selectedUser ? selectedUser.username : newUser.username)
+                }
+                />
+                <Form.Control.Feedback type="invalid">
+                  El nombre de usuario debe contener solo letras sin espacios ni símbolos.
+                </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
-              <Form.Label>Contraseña</Form.Label>
+            <Form.Label>Contraseña</Form.Label>
               <Form.Control
-                type="text"
+                type="password"
                 name="password"
+                pattern="^\d{3,6}$"
+                title="Solo números, entre 3 y 6 dígitos."
                 value={selectedUser ? selectedUser.password : newUser.password}
                 onChange={handleInputChange}
-              />
+                placeholder={showUpdate ? "Nueva contraseña (opcional)" : "Contraseña"}
+                isInvalid={
+                  (selectedUser ? selectedUser.password : newUser.password) &&
+                  !/^\d{3,6}$/.test(selectedUser ? selectedUser.password : newUser.password)
+                }
+                />
+                <Form.Control.Feedback type="invalid">
+                  La contraseña debe contener solo números (mínimo 3 y máximo 6 dígitos).
+                </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Rol</Form.Label>
-              <Form.Control
-                type="text"
-                name="rol"
-                value={selectedUser ? selectedUser.rol : newUser.rol}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
+            {/* Input de Rol eliminado */}
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -162,7 +182,7 @@ export const Users = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
+      <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -176,16 +196,20 @@ export const Users = () => {
           {users.map(user => (
             <tr key={user.id}>
               <td>{user.username}</td>
-              {/* <td>{user.password}</td>  dijo que no se mostrara la contrase*/}
+              {/* <td>{user.password}</td> */}
               <td>{user.rol}</td>
               <td>
                 <Button variant="danger" onClick={() => deleteUser(user.id)}>Eliminar</Button>{' '}
-                <Button variant="warning" onClick={() => { setSelectedUser(user); setShowUpdate(true); }}>Actualizar</Button>
+                <Button variant="warning" onClick={() => {
+                  setSelectedUser({ ...user, password: "" });
+                  setShowUpdate(true);
+                }}>Actualizar</Button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      </div>
     </div>
   );
 };

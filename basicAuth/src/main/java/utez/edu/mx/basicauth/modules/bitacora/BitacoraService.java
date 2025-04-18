@@ -25,4 +25,8 @@ public class BitacoraService {
         bitacoraRepository.save(bitacora);
     }
 
+    public void eliminarTodaLaBitacora() {
+        bitacoraRepository.deleteAll();
+    }
+
 }

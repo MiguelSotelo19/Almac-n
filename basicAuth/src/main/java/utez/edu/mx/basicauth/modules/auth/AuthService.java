@@ -52,8 +52,20 @@ public class AuthService {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
+
+            if (!userDTO.getUsername().matches("^[A-Za-z]{2,}$")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de usuario solo debe contener letras sin espacios ni símbolos.");
+            }
+
             user.setUsername(userDTO.getUsername());
-            user.setPassword(userDTO.getPassword());
+
+            if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
+                if (!userDTO.getPassword().matches("^\\d{3,6}$")) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña debe contener solo números (mínimo 3 y máximo 6 dígitos).");
+                }
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
+
             return userRepository.save(user);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
@@ -72,6 +84,14 @@ public class AuthService {
     }
     @Transactional(rollbackOn = {SQLException.class, Exception.class})
     public ResponseEntity<?> register(RegisterDTO dto) {
+        // Validaciones
+        if (!dto.getUsername().matches("^[A-Za-z]{2,}$")) {
+            return customResponse.getErrorResponse("El nombre de usuario solo debe contener letras sin espacios ni símbolos.");
+        }
+        if (!dto.getPassword().matches("^\\d{3,6}$")) {
+            return customResponse.getErrorResponse("La contraseña debe contener solo números (mínimo 3 y máximo 6 dígitos).");
+        }
+
         // Verificación de usuario existente
         if (userRepository.existsByUsername(dto.getUsername())) {
             return customResponse.getErrorResponse("El usuario ya existe");

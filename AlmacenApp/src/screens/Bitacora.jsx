@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Table from "react-bootstrap/Table";
 import { Header } from "../components/Header";
+import Swal from "sweetalert2";
 
 export const Bitacora = () => {
   const [bitacora, setBitacora] = useState([]);
@@ -21,7 +22,7 @@ export const Bitacora = () => {
           },
         });
         setBitacora(response.data);
-        console.log("Datos de bitácora recibidos:", response.data);
+        
       } catch (error) {
         console.error("Error al obtener la bitácora:", error);
       }
@@ -29,11 +30,40 @@ export const Bitacora = () => {
 
     fetchBitacora();
   }, []);
+  const handleLimpiarBitacora = async () => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "¡Esto eliminará todos los registros de la bitácora!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete("http://localhost:8080/api/bitacora", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setBitacora([]);
+          Swal.fire("¡Eliminado!", "La bitácora fue limpiada.", "success");
+        } catch (error) {
+          Swal.fire("Error", "No se pudo eliminar la bitácora.", "error");
+        }
+      }
+    });
+  };
 
   return (
     <div className="p-4" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
       <Header />
       <h1 className="text-2xl font-bold mb-4">Bitácora de Actividades</h1>
+      <button className="btn btn-danger mb-3" onClick={handleLimpiarBitacora}>
+        Limpiar Bitácora
+      </button>
       <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
         <Table striped bordered hover>
           <thead>

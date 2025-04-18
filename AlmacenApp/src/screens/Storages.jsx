@@ -51,7 +51,7 @@ export const Storages = () => {
         const respuesta = await axios.get(urlUsers, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(respuesta.data)
+        //console.log(respuesta.data)
         setUsers(respuesta.data);
     }
 
@@ -67,11 +67,11 @@ export const Storages = () => {
         setArticles([]);
         setSelectedCategory(id);
         setSelectedStorage(null);
-        console.log("getStorages: ",token)
+        //console.log("getStorages: ",token)
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log("getStorages: ",respuesta)
+        //console.log("getStorages: ",respuesta)
         setStorages(respuesta.data.filter(st => st.categoryId == id));
     };
 
@@ -107,7 +107,7 @@ export const Storages = () => {
                 categoryId: selectedCategory,
                 userId: userId
             }
-            console.log(parametros);
+            //console.log(parametros);
 
             enviarPeticion("POST", parametros, urlStorage, 2);
         }
@@ -129,13 +129,13 @@ export const Storages = () => {
                 categoryId: selectedCategory,
                 storageId: selectedStorage
             }
-            console.log(parametros);
+            //console.log(parametros);
 
             if(isUpdate){
                 metodo = "PUT";
                 url += '/'+artId;
             }
-            console.log(url)
+            //console.log(url)
 
             enviarPeticion(metodo, parametros, url, 3);
         }
@@ -150,7 +150,7 @@ export const Storages = () => {
             },
             data: parametros
         }).then(function (respuesta) {
-            console.log(respuesta)
+            //console.log(respuesta)
             switch(type){
                 case 1:
                     getCategories();
