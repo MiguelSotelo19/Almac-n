@@ -12,7 +12,7 @@ export const E403 = () => (
                 Si crees que es un error, contacta al administrador del sistema.
             </p>
             <Link to="/" className="btn btn-warning mt-4 px-4 py-2 fw-semibold shadow">
-                Volver al inicio
+                Volver
             </Link>
         </div>
     </main>

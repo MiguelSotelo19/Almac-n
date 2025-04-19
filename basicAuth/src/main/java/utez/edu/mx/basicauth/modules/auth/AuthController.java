@@ -49,7 +49,7 @@ public class AuthController {
 
 
     @PutMapping("/users/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody LoginDTO userDTO) {
+    public User updateUser(@PathVariable Long id, @RequestBody User userDTO) {
         return authService.updateUser(id, userDTO);
     }
 
@@ -59,6 +59,11 @@ public class AuthController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/users/{id}/password")
+    public User updatePassword(@PathVariable Long id, @RequestBody User.PasswordDTO passwordDTO) {
+        return authService.updatePassword(id, passwordDTO.getPassword());
     }
 
 }
