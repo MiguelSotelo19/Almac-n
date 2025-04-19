@@ -27,7 +27,7 @@ public class AuthService {
 
     @Transactional(rollbackOn = {SQLException.class, Exception.class})
     public ResponseEntity<?> login(LoginDTO dto) {
-        User found = userRepository.findByUsername(dto.getUsername());
+        User found = userRepository.findByEmail(dto.getEmail());
 
         if (found != null && passwordEncoder.matches(dto.getPassword(), found.getPassword())) {
             return customResponse.getOkResponse("tokenbearer." + found.getUsername() + ".voidtoken");
@@ -36,11 +36,11 @@ public class AuthService {
         }
     }
     public List<User> getAllUsers() {
-        return userRepository.findAllNonAdminUsers();
+        return userRepository.findAll();
     }
 
-    public User getUser(String username){
-        return userRepository.findByUsername(username);
+    public User getUser(String email){
+        return userRepository.findByEmail(email);
     }
 
     public List<User> getResponsables(){
@@ -48,12 +48,12 @@ public class AuthService {
     }
 
 
-    public User updateUser(Long id, LoginDTO userDTO) {
+    public User updateUser(Long id, User userDTO) {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
             user.setUsername(userDTO.getUsername());
-            user.setPassword(userDTO.getPassword());
+            user.setEmail(userDTO.getEmail());
             return userRepository.save(user);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
@@ -61,8 +61,10 @@ public class AuthService {
     }
 
     public User saveUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
+
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
@@ -80,10 +82,24 @@ public class AuthService {
         // Crear y guardar usuario
         User newUser = new User();
         newUser.setUsername(dto.getUsername());
+        newUser.setEmail(dto.getEmail());
         newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         newUser.setRol(dto.getRol() != null ? dto.getRol() : "USER");
 
         User savedUser = userRepository.save(newUser);
         return customResponse.getCreatedResponse(savedUser);
     }
+
+    public User updatePassword(Long id, String rawPassword) {
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            return userRepository.save(user);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+    }
+
+
 }

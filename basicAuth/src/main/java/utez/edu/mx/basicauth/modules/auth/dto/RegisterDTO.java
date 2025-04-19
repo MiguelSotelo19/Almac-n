@@ -3,14 +3,16 @@ package utez.edu.mx.basicauth.modules.auth.dto;
 public class RegisterDTO {
     private String username;
     private String password;
+    private String email;
     private String rol; // Puedes quitar esto si el rol se asigna automáticamente
 
     public RegisterDTO() {
     }
 
-    public RegisterDTO(String username, String password, String rol) {
+    public RegisterDTO(String username, String password, String email, String rol) {
         this.username = username;
         this.password = password;
+        this.email = email;
         this.rol = rol;
     }
 
@@ -37,6 +39,14 @@ public class RegisterDTO {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
 

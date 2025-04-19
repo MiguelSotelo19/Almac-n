@@ -31,7 +31,7 @@ public class AuthFilter extends OncePerRequestFilter {
        final String AUTH_HEADER  = request.getHeader("Authorization");
        String token;
        User user = null;
-
+       System.out.println("URI: " + request.getRequestURI());
        if(!whiteList.contains(request.getRequestURI())) {
            if (AUTH_HEADER != null && AUTH_HEADER.startsWith("Bearer ")) {
                token = AUTH_HEADER.substring(7);

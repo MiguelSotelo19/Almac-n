@@ -2,16 +2,27 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Table from "react-bootstrap/Table";
 import { Header } from "../components/Header";
+import { E401 } from "./E401";
+import { E403 } from "./E403";
 
 export const Bitacora = () => {
   const [bitacora, setBitacora] = useState([]);
 
   const token = localStorage.getItem("token");
-  
-  if(token == null){
-    navigate("/Almacen/IniciarSesion");
-}
+  const rol = localStorage.getItem("rol");
 
+  if(token == null){
+      return(
+          <E401/>
+        )
+  }
+
+  if (rol != "ADMIN") {
+    return (
+      <E403 />
+    )
+  }
+  
   useEffect(() => {
     const fetchBitacora = async () => {
       try {

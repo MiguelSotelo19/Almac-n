@@ -3,6 +3,7 @@ import "./css/Header.css";
 
 export const Header = () => {
     const navigate = useNavigate();
+    const rol = localStorage.getItem("rol");
 
     const cerrarSesion = () => {
         localStorage.removeItem("token");
@@ -17,7 +18,7 @@ export const Header = () => {
                 </div>
                 <div className="nav-buttons">
                     <button className="cool-btn" onClick={() => navigate("/Almacen/Almacenes")}>Almacenes</button>
-                    <button className="cool-btn" onClick={() => navigate("/Almacen/Usuarios")}>Usuarios</button>
+                    {rol != "ADMIN" ? null : (<button className="cool-btn" onClick={() => navigate("/Almacen/Usuarios")}>Usuarios</button>)}
                     <button className="cool-btn" onClick={() => navigate("/Almacen/Bitacora")}>Bitacora</button>
                 </div>
                 <div>

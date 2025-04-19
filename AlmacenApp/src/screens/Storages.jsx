@@ -39,6 +39,7 @@ export const Storages = () => {
     const [ userId, setUserId] = useState(0);
 
     const token = localStorage.getItem("token");
+    const rol = localStorage.getItem("rol");
 
     if(token == null){
         return(
@@ -51,10 +52,12 @@ export const Storages = () => {
         getUsers();
     }, []);
     
+
     const getUsers = async () => {
-        const respuesta = await axios.get(urlUsers, {
+        const respuesta = await axios.get(`${urlUsers}/responsables`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+        console.log(`${urlUsers}/responsables`)
         console.log(respuesta.data)
         setUsers(respuesta.data);
     }
@@ -90,7 +93,8 @@ export const Storages = () => {
 
     const validarCat = () => {
         if(catName == "") {
-            alert("Ingresa un nombre válido");
+            Swal.fire("Nombre vacío", "Ingresa un nombre válido.", "warning");
+            return;
         } else {
             let parametros = {
                 name: catName
@@ -102,9 +106,11 @@ export const Storages = () => {
 
     const validarSt = () => {
         if(location == "") {
-            alert("Ingresa una localización válida");
+            Swal.fire("Localización inválida", "Ingresa una localización válido.", "warning");
+            return;
         } if(userId == "") {
-            alert("Selecciona un usuario");
+            Swal.fire("Sin usuario seleccionado", "Seleccione un usuario.", "warning");
+            return;
         } else {
             let parametros = {
                 location: location,
@@ -122,9 +128,11 @@ export const Storages = () => {
         let url = urlArticles;
 
         if(artName == "") {
-            alert("Ingresa un nombre válido");
+            Swal.fire("Nombre vacío", "Ingresa un nombre válido.", "warning");
+            return;
         } else if(artDesc == "") {
-            alert("Ingresa una descripción válida");
+            Swal.fire("Descripción vacía", "Ingresa una descripción válida.", "warning");
+            return;
         } else {
             let parametros = {
                 title: artName,
@@ -213,8 +221,12 @@ export const Storages = () => {
             <Header />
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
-                <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
-                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} />
+                {rol != "ADMIN" ? null :(
+                    <>
+                        <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
+                        <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} />
+                    </>
+                    )}
                 <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} />
                 </div>
             </div>
