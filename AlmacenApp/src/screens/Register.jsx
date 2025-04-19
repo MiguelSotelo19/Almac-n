@@ -58,9 +58,9 @@ export const Register = () => {
     };
 
     return (
-        <div className="d-flex vh-100">
+        <div className="d-flex vh-100" style={{ background: "linear-gradient(135deg, #1e1e2f, #3c3c52)" }}>
             <div className="flex-grow-1 d-flex align-items-center justify-content-center">
-                <div className="card p-4 w-50 d-flex flex-column">
+                <div className="card p-4 w-50 d-flex flex-column" style={{ backgroundColor:"#2e2e3f", borderRadius: "10px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.4)", color:"white"}}>
                     <div className="card-body d-flex flex-column align-items-center justify-content-center gap-3" style={{ flex: "1 0 auto" }}>
                         <h2 className="card-title mb-3">Registro</h2>
                         <label className="w-100">

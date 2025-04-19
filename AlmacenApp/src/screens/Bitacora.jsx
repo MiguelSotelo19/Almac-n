@@ -10,8 +10,10 @@ export const Bitacora = () => {
   const token = localStorage.getItem("token");
   
   if(token == null){
-    navigate("/Almacen/IniciarSesion");
-}
+      return(
+          <E401/>
+        )
+    }
 
   useEffect(() => {
     const fetchBitacora = async () => {
@@ -57,7 +59,7 @@ export const Bitacora = () => {
   };
 
   return (
-    <div className="p-4" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
+    <div className="p-4" style={{  background: "linear-gradient(135deg, #1e1e2f, #3c3c52)", color:"white", height: '100vh' }}>
       <Header />
       <h1 className="text-2xl font-bold mb-4">Bitácora de Actividades</h1>
       <button className="btn btn-danger mb-3" onClick={handleLimpiarBitacora}>

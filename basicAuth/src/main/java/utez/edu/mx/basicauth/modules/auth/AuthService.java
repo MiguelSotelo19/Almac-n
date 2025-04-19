@@ -10,6 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 import utez.edu.mx.basicauth.kernel.CustomResponse;
 import utez.edu.mx.basicauth.modules.auth.dto.LoginDTO;
 import utez.edu.mx.basicauth.modules.auth.dto.RegisterDTO;
+import utez.edu.mx.basicauth.modules.storages.Storages;
+import utez.edu.mx.basicauth.modules.storages.StoragesRepository;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.Optional;
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private StoragesRepository storageRepository;
 
     @Autowired
     private CustomResponse customResponse;
@@ -76,7 +80,18 @@ public class AuthService {
         return userRepository.save(user);
     }
     public boolean deleteUser(Long id) {
-        if (userRepository.existsById(id)) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            // Buscar todos los almacenes que tengan asignado este usuario
+            List<Storages> almacenes = storageRepository.findByUser(user);
+            for (Storages almacen : almacenes) {
+                almacen.setUser(null); // Desvincular el usuario
+                storageRepository.save(almacen); // Guardar el cambio
+            }
+
+            // Eliminar el usuario
             userRepository.deleteById(id);
             return true;
         }

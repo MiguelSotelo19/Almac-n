@@ -28,7 +28,11 @@ public class StoragesServices {
 
     public List<StoragesDTO> getAllStorages() {
         return storagesRepository.findAll().stream()
-                .map(storage -> new StoragesDTO(storage.getId(), storage.getLocation(), storage.getCategory().getCategory_id(), storage.getUser().getId()))
+                .map(storage -> {
+                    Long userId = (storage.getUser() != null) ? storage.getUser().getId() : null;
+                    Long categoryId = (storage.getCategory() != null) ? storage.getCategory().getCategory_id() : null;
+                    return new StoragesDTO(storage.getId(), storage.getLocation(), categoryId, userId);
+                })
                 .collect(Collectors.toList());
     }
 

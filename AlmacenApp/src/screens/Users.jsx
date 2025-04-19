@@ -127,10 +127,10 @@ export const Users = () => {
   }
 
   return (
-    <div className="p-4" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
+    <div className="p-4" style={{  background: "linear-gradient(135deg, #1e1e2f, #3c3c52)", height: '100vh', color: 'white' }}>
       <Header />
       <h1 className="text-2xl font-bold mb-4">Lista de Responsables de Almacen</h1>
-      <Button onClick={handleShow}>Agregar Usuario</Button>
+      <Button onClick={handleShow}>Agregar Responsable</Button>
 
       {/* Modal para agregar o actualizar usuarios  */}
       <Modal show={show || showUpdate} onHide={handleClose}>

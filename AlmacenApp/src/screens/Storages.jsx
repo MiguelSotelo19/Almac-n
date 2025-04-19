@@ -31,7 +31,7 @@ export const Storages = () => {
     const [ selectedCategory, setSelectedCategory ] = useState(null);
     const [ selectedStorage, setSelectedStorage ] = useState(null);
     const [ isUpdate, setIsUpdate ] = useState(false);
-
+    const [storageToUpdate, setStorageToUpdate] = useState(null);
     const [ catName, setCatName ] = useState("");
     const [ location, setLocation ] = useState("");
     const [ artId, setArtId ] = useState(0);
@@ -40,6 +40,9 @@ export const Storages = () => {
     const [ artCant, setArtCant ] = useState("");
     const [ userId, setUserId] = useState(0);
     const [ stuserId, setStUserId] = useState(0);
+    const [editName, setEditName] = useState("");
+    const [editUserId, setEditUserId] = useState("");
+    const [usuariosConAlmacen, setUsuariosConAlmacen] = useState([]);
 
     const token = localStorage.getItem("token");
 
@@ -87,20 +90,32 @@ export const Storages = () => {
         setCategories(respuesta.data);
     };
 
-    const getStorages = async (id) => {
-        setUser([]);
-        setArticles([]);
-        setSelectedCategory(id);
-        setSelectedStorage(null);
-        const respuesta = await axios.get(urlStorage, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setStorages(respuesta.data.filter(st => st.categoryId == id));
-    };
+const getStorages = async (id) => {
+    setUser([]);
+    setArticles([]);
+    setSelectedCategory(id);
+    setSelectedStorage(null);
+    const respuesta = await axios.get(urlStorage, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const filtrados = respuesta.data.filter(st => st.categoryId == id);
+    setStorages(filtrados);
+    const userIds = filtrados.map(storage => storage.userId);
+    setUsuariosConAlmacen(userIds); // guardamos los ids
+};
 
     const getArticles = async (id, userIdSt) => {
         setSelectedStorage(id);
-        setUser(users.find(us => us.id == userIdSt).username);
+
+        const storageSelected = storages.find(st => st.id === id);
+        if (storageSelected) {
+            setEditName(storageSelected.location);
+            setEditUserId(storageSelected.userId);
+        }
+
+        const usuario = users.find(us => us.id == userIdSt);
+    setUser(usuario ? usuario.username : "SIN RESPONSABLE");
+
         const respuesta = await axios.get(urlArticles, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -234,13 +249,36 @@ export const Storages = () => {
         }
     }, [modalAbierto]);
 
+    const handleUpdateStorage = async () => {
+        if (!selectedStorage) return;
+    
+        try {
+            await updateStorage(selectedStorage, {
+                location: editName,
+                userId: editUserId
+            });
+    
+            Swal.fire("Actualizado", "El almacén fue actualizado correctamente", "success");
+    
+            getStorages(); // refrescar lista de almacenes
+        } catch (error) {
+            Swal.fire("Error", "No se pudo actualizar el almacén", "error");
+            console.error(error);
+        }
+    };
+    const updateStorage = async (id, data) => {
+        return await axios.put(`${urlStorage}/${id}`, data, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+    };
+
     return (
-        <div className="container-fluid p-4" style={{ backgroundColor: 'whitesmoke', height: '100vh' }}>
+        <div className="container-fluid p-4" style={{  background: "linear-gradient(135deg, #1e1e2f, #3c3c52)", minHeight: '100vh' }}>
             <Header />
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
                 <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
-                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} setStUserId={setStUserId} modalAbierto={modalAbierto} />
+                <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} setStUserId={setStUserId} setStorageToUpdate={setStorageToUpdate} modalAbierto={modalAbierto} />
                 <ArticleTable articles={articles} selectedStorage={selectedStorage} getArticles={getArticles} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} stuserId={stuserId} />
                 </div>
             </div>
@@ -285,9 +323,11 @@ export const Storages = () => {
                                 <label htmlFor="userSelect" className="form-label">Seleccionar un responsable de almacén:</label>
                                 <select className="form-select" value={userId} id="userSelect" onChange={(e) => setUserId(e.target.value)}>
                                     <option id="default" value="">-- Selecciona un usuario --</option>
-                                    {users.map((user) => (
+                                    {users
+                                    .filter((user) => !usuariosConAlmacen.includes(user.id))
+                                    .map((user) => (
                                         <option key={user.id} value={user.id}>
-                                            {user.username}
+                                        {user.username}
                                         </option>
                                     ))}
                                 </select>
@@ -332,6 +372,35 @@ export const Storages = () => {
                     </div>
                 </div>
             </div>
+            {/* --------------------- actualizar almacen ---------------------------------------*/}
+
+            {selectedStorage && (
+                <div className="card mt-3 p-3 mb-4">
+                    <h5>Editar Almacén</h5>
+                    <input
+                        type="text"
+                        className="form-control mb-2"
+                        value={editName}
+                        placeholder="Nombre del almacén"
+                        onChange={(e) => setEditName(e.target.value)}
+                    />
+                    <select
+                        className="form-select mb-2"
+                        value={editUserId}
+                        onChange={(e) => setEditUserId(e.target.value)}
+                    >
+                        <option value="">Seleccione un usuario</option>
+                        {users
+            .filter((user) => !usuariosConAlmacen.includes(user.id) || user.id === editUserId)
+            .map((user) => (
+                <option key={user.id} value={user.id}>
+                {user.username}
+                </option>
+            ))}
+                    </select>
+                    <button className="btn btn-primary" onClick={handleUpdateStorage}>Actualizar</button>
+                </div>
+            )}
         </div>
     );
 };
