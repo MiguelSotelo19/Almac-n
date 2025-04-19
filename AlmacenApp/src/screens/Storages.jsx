@@ -82,8 +82,7 @@ export const Storages = () => {
         const respuesta = await axios.get(`${urlUsers}/responsables`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(`${urlUsers}/responsables`)
-        console.log(respuesta.data)
+        
         setUsers(respuesta.data);
     }
 
