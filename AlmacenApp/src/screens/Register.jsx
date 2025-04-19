@@ -11,14 +11,33 @@ export const Register = () => {
     const navigate = useNavigate();
     const [nombre_usuario, setNombreUsuario] = useState("");
     const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
     const handleRegister = async () => {
-        if (!nombre_usuario || !password || !confirmPassword) {
+        if (!nombre_usuario || !password || !confirmPassword || !email) {
             Swal.fire({
                 icon: "warning",
                 title: "Campos vacíos",
                 text: "Por favor, completa todos los campos.",
+            });
+            return;
+        }
+
+        if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password)) {
+            Swal.fire({
+                icon: "error",
+                title: "Contraseña inválida",
+                text: "Debe contener al menos 8 carácteres, una mayúscula, un número y un carácter especial.",
+            });
+            return;
+        }
+
+        if (!/^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            Swal.fire({
+                icon: "error",
+                title: "Correo electrónico inválido",
+                text: "Introduce un correo electrónico válido.",
             });
             return;
         }
@@ -36,6 +55,7 @@ export const Register = () => {
             const response = await axios.post("http://127.0.0.1:8080/api/auth/register", {
                 username: nombre_usuario,
                 password: password,
+                email: email,
                 rol: "RESPONSABLE"
             });
 
@@ -64,13 +84,23 @@ export const Register = () => {
                     <div className="card-body d-flex flex-column align-items-center justify-content-center gap-3" style={{ flex: "1 0 auto" }}>
                         <h2 className="card-title mb-3">Registro</h2>
                         <label className="w-100">
-                            Usuario:
+                            Nombre Completo:
                             <input
                                 type="text"
                                 className="form-control mt-1"
-                                placeholder="Ingresa tu usuario"
+                                placeholder="Ingresa tu nombre"
                                 value={nombre_usuario}
                                 onChange={(e) => setNombreUsuario(e.target.value)}
+                            />
+                        </label>
+                        <label className="w-100 mt-4">
+                            Correo electrónico:
+                            <input
+                                type="email"
+                                className="form-control mt-1"
+                                placeholder="Ingresa tu correo electronico"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                         </label>
                         <label className="w-100 mt-4">

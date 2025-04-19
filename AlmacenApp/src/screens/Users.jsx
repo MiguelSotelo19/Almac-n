@@ -18,6 +18,8 @@ export const Users = () => {
   const [showUpdate, setShowUpdate] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", password: "", rol: "RESPONSABLE" });
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({ nueva: "", confirmar: "" });
 
   const handleClose = () => { setShow(false); setShowUpdate(false); };
   const handleShow = () => { 
@@ -27,11 +29,17 @@ export const Users = () => {
   };
 
   const token = localStorage.getItem("token");
+  const rol = localStorage.getItem("rol");
+  if (token == null) {
+    return (
+      <E401 />
+    )
+  }
 
-  if(token == null){
-    return(
-        <E401/>
-      )
+  if (rol != "ADMIN") {
+    return (
+      <E403 />
+    )
   }
 
   useEffect(() => {
@@ -40,10 +48,11 @@ export const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/auth/users", {
+      const response = await axios.get("http://localhost:8080/api/auth/users/responsables", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
+      console.log(response.data)
       setLoading(false);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -84,6 +93,22 @@ export const Users = () => {
   };
 
   const handleAddUser = async () => {
+    if (!username || username.trim() === "") {
+      Swal.fire("Nombre requerido", "Por favor, ingresa el nombre de usuario.", "warning");
+      return;
+    }
+    if (!email || email.trim() === "" || !/^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      Swal.fire("Correo electrónico no válido", "Por favor, ingresa un correo electrónico válido.", "warning");
+      return;
+    }
+    else if (!password || password.trim() === "" || !/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password)) {
+      Swal.fire("Contraseña inválida", "Debe contener al menos 8 carácteres, una mayúscula, un número y un carácter especial.", "warning");
+      return;
+    }
+    else if (!rol || rol === "seleccionar") {
+      Swal.fire("Rol requerido", "Por favor, selecciona un rol válido.", "warning");
+      return;
+    }
     try {
       await axios.post("http://localhost:8080/api/auth/register", newUser, {
         headers: { Authorization: `Bearer ${token}` },
@@ -117,9 +142,51 @@ export const Users = () => {
     }
   };
 
+  const handleOpenPasswordModal = () => {
+    setShowUpdate(false);
+    setShow(false);
+    setPasswordData({ nueva: "", confirmar: "" });
+    setShowPasswordModal(true);
+  };
+
+  const handleClosePasswordModal = () => {
+    setShowPasswordModal(false);
+    setPasswordData({ nueva: "", confirmar: "" });
+  };
+
+  const handleChangePassword = async () => {
+    const { nueva, confirmar } = passwordData;
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+    if (!nueva || !regex.test(nueva)) {
+      Swal.fire("Contraseña inválida", "Debe contener al menos 8 caracteres, una mayúscula, un número y un carácter especial.", "warning");
+      return;
+    }
+
+    if (nueva !== confirmar) {
+      Swal.fire("Contraseñas no coinciden", "Las contraseñas deben coincidir.", "warning");
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:8080/api/auth/users/${selectedUser.id}/password`,
+        { password: nueva },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      handleClosePasswordModal();
+      Swal.fire("¡Contraseña actualizada!", "La contraseña se actualizó correctamente.", "success");
+    } catch (error) {
+      console.error("Error updating password:", error);
+      Swal.fire("Error", "No se pudo actualizar la contraseña.", "error");
+    }
+  };
+
+
   if (loading) {
     return (
       <div>
+        <Header />
         Cargando usuarios...
         <Spinner animation="border" variant="warning" />
       </div>
@@ -140,7 +207,7 @@ export const Users = () => {
         <Modal.Body>
           <Form>
             <Form.Group>
-              <Form.Label>Nombre de Usuario</Form.Label>
+              <Form.Label className="ms-1">Nombre de Usuario</Form.Label>
               <Form.Control
                 type="text"
                 name="username"
@@ -158,7 +225,16 @@ export const Users = () => {
                 </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
-            <Form.Label>Contraseña</Form.Label>
+              <Form.Label className="ms-1">Correo electrónico</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={selectedUser ? selectedUser.email : newUser.email}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {showUpdate ? null : (<Form.Group>
+              <Form.Label className="mt-3 ms-1">Contraseña</Form.Label>
               <Form.Control
                 type="password"
                 name="password"
@@ -166,27 +242,68 @@ export const Users = () => {
                 title="Solo números, entre 3 y 6 dígitos."
                 value={selectedUser ? selectedUser.password : newUser.password}
                 onChange={handleInputChange}
-                placeholder={showUpdate ? "Nueva contraseña (opcional)" : "Contraseña"}
-                isInvalid={
-                  (selectedUser ? selectedUser.password : newUser.password) &&
-                  !/^\d{3,6}$/.test(selectedUser ? selectedUser.password : newUser.password)
-                }
-                />
-                <Form.Control.Feedback type="invalid">
-                  La contraseña debe contener solo números (mínimo 3 y máximo 6 dígitos).
-                </Form.Control.Feedback>
+              />
+            </Form.Group>)}
+
+            <Form.Group>
+              <Form.Group controlId="rol">
+                <Form.Label className="mt-3 ms-1">Rol</Form.Label>
+                <Form.Select
+                  name="rol"
+                  value={selectedUser ? selectedUser.rol : newUser.rol}
+                  onChange={handleInputChange}
+                >
+                  <option value="seleccionar">Selecciona uno...</option>
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="RESPONSABLE">RESPONSABLE</option>
+                </Form.Select>
+              </Form.Group>
             </Form.Group>
             {/* Input de Rol eliminado */}
           </Form>
         </Modal.Body>
         <Modal.Footer>
+        {show ? null : (<Button variant="light" onClick={handleOpenPasswordModal}>Cambiar Contraseña</Button>)}
           <Button variant="secondary" onClick={handleClose}>Cerrar</Button>
           <Button variant="primary" onClick={showUpdate ? handleUpdateUser : handleAddUser}>
             {showUpdate ? "Actualizar Usuario" : "Agregar Usuario"}
           </Button>
         </Modal.Footer>
       </Modal>
-      <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+
+      <Modal show={showPasswordModal} onHide={handleClosePasswordModal}>
+  <Modal.Header closeButton>
+    <Modal.Title>Cambiar Contraseña</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group>
+        <Form.Label>Nueva Contraseña</Form.Label>
+        <Form.Control
+          type="password"
+          name="nueva"
+          value={passwordData.nueva}
+          onChange={(e) => setPasswordData({ ...passwordData, nueva: e.target.value })}
+        />
+      </Form.Group>
+      <Form.Group className="mt-3">
+        <Form.Label>Confirmar Nueva Contraseña</Form.Label>
+        <Form.Control
+          type="password"
+          name="confirmar"
+          value={passwordData.confirmar}
+          onChange={(e) => setPasswordData({ ...passwordData, confirmar: e.target.value })}
+        />
+      </Form.Group>
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleClosePasswordModal}>Cancelar</Button>
+    <Button variant="primary" onClick={handleChangePassword}>Actualizar Contraseña</Button>
+  </Modal.Footer>
+</Modal>
+
+
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -212,7 +329,7 @@ export const Users = () => {
         </tbody>
       </Table>
       </div>
-    </div>
+    
   );
 };
 

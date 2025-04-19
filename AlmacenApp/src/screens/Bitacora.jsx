@@ -3,18 +3,27 @@ import axios from "axios";
 import Table from "react-bootstrap/Table";
 import { Header } from "../components/Header";
 import Swal from "sweetalert2";
+import { E401 } from "./E401";
+import { E403 } from "./E403";
 
 export const Bitacora = () => {
   const [bitacora, setBitacora] = useState([]);
 
   const token = localStorage.getItem("token");
-  
+  const rol = localStorage.getItem("rol");
+
   if(token == null){
       return(
           <E401/>
         )
-    }
+  }
 
+  if (rol != "ADMIN") {
+    return (
+      <E403 />
+    )
+  }
+  
   useEffect(() => {
     const fetchBitacora = async () => {
       try {

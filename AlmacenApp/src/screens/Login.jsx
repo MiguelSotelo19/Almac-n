@@ -13,7 +13,7 @@ export const Login = () => {
     const urlLogin = 'http://127.0.0.1:8080/api/auth/login';
 
     const navigate = useNavigate();
-    const [nombre_usuario, setNombreUsuario] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const isAuthenticated = () => {
@@ -28,26 +28,38 @@ export const Login = () => {
     }, []);
 
     const handleLogin = async () => {
-        if (!nombre_usuario || !password) {
+        if (!email || !password) {
             Swal.fire({
                 icon: "warning",
                 title: "Campos vacíos",
-                text: "Por favor, ingresa tu usuario y contraseña.",
+                text: "Por favor, ingresa tu correo electrónico y contraseña.",
             });
             return;
         }
     
         try {
             const response = await axios.post(urlLogin, {
-                "username": nombre_usuario,
+                "email": email,
                 "password": password,
             }, {
                 withCredentials: true
             });
-    
+            console.log("response: ",response)
+
             if (response.status === 200) {
                 localStorage.setItem("token", response.data.data);
-    
+                console.log(response.data.data)
+                const responseUser = await axios.get("http://localhost:8080/api/auth/users", {
+                    headers: { Authorization: `Bearer ${response.data.data}` },
+                });
+                console.log("usuarios: ",responseUser)
+                const usuarios = responseUser.data;
+                const usuarioLogueado = usuarios.find(u => u.email === email);
+
+                if (usuarioLogueado) {
+                    localStorage.setItem("rol", usuarioLogueado.rol);
+                }
+                console.log(usuarioLogueado)
                 Swal.fire({
                     icon: "success",
                     title: "Inicio de sesión exitoso",
@@ -88,13 +100,13 @@ export const Login = () => {
                     <div className="card-body d-flex flex-column align-items-center justify-content-center gap-3" style={{ flex: "1 0 auto"}}>
                         <h2 className="card-title mb-3">Almacén</h2>
                         <label className="w-100">
-                            Usuario:
+                            Correo electrónico:
                             <input
-                                type="text"
+                                type="email"
                                 className="form-control mt-1"
-                                placeholder="Ingresa tu usuario"
-                                value={nombre_usuario}
-                                onChange={(e) => setNombreUsuario(e.target.value)}
+                                placeholder="Ingresa tu correo electronico"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                         </label>
                         <label className="w-100 mt-4">
