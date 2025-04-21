@@ -58,8 +58,8 @@ export const Login = () => {
 
                 if (usuarioLogueado) {
                     localStorage.setItem("rol", usuarioLogueado.rol);
+                    localStorage.setItem("userLogg", JSON.stringify(usuarioLogueado));
                 }
-                console.log(usuarioLogueado)
                 Swal.fire({
                     icon: "success",
                     title: "Inicio de sesión exitoso",

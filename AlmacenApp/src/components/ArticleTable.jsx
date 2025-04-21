@@ -60,7 +60,6 @@ export const ArticleTable = ({ articles, selectedStorage, getArticles, openAddMo
                     <th>Descripción</th>
                     <th>Cantidad</th>
                     <th>Acciones</th>
-                    {/*<th>Categoría</th>*/}
                 </tr>
             </thead>
             <tbody>
@@ -75,7 +74,6 @@ export const ArticleTable = ({ articles, selectedStorage, getArticles, openAddMo
                                 <button className="btn" data-bs-toggle="modal" data-bs-target="#articles" onClick={() => openUpdateModal(at)} data-toggle="tooltip" data-placement="top" title="Actualizar artículo"><img src={editar} alt="Actualizar" /></button>
                                 <button className="btn" data-toggle="tooltip" data-placement="top" title="Eliminar artículo" onClick={() => deleteArticle(at.id, at.title)}><img src={borrar} alt="Eliminar" /></button>
                             </td>
-                            {/*<td>{at.categoryId}</td>*/}
                         </tr>
                     ))
                 ) : (

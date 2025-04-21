@@ -24,14 +24,14 @@ export const Register = () => {
             return;
         }
 
-        if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password)) {
+        /*if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password)) {
             Swal.fire({
                 icon: "error",
                 title: "Contraseña inválida",
                 text: "Debe contener al menos 8 carácteres, una mayúscula, un número y un carácter especial.",
             });
             return;
-        }
+        }*/
 
         if (!/^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
             Swal.fire({

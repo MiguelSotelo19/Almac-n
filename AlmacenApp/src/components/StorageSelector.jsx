@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 
-export const StorageSelector = ({ storages, selectedStorage, getArticles, getUsers, setStUserId }) => {
-
+export const StorageSelector = ({ storages, selectedStorage, getArticles, getUsers, setStUserId }) => {    
     return selectedStorage ? (
+        <>
         <div className="card mb-4">
             <div className="card-body">
                 <div className="d-lg-flex justify-content-between align-items-center">
@@ -29,5 +30,6 @@ export const StorageSelector = ({ storages, selectedStorage, getArticles, getUse
                 </div>
             </div>
         </div>
+        </>
     ) : null;
 };

@@ -45,7 +45,7 @@ export const Storages = () => {
     const [usuariosConAlmacen, setUsuariosConAlmacen] = useState([]);
 
     const token = localStorage.getItem("token");
-    const rol = localStorage.getItem("rol");
+    const userLogg = JSON.parse(localStorage.getItem("userLogg"));
 
     if(token == null){
         return(
@@ -54,13 +54,17 @@ export const Storages = () => {
     }
 
     useEffect(() => {
-        getCategories();
-        getUsers();
+        if(userLogg.rol!="ADMIN"){
+            getUsers();
+            getStorage(userLogg.id);
+        } else {
+            getCategories();
+            getUsers();
+        }
     }, []);
 
     useEffect(() => {
         const modal = modalRef.current;
-        console.log(modal)
         const handleShow = () => setModalAbierto(true);
         const handleHide = () => setModalAbierto(false);
 
@@ -82,33 +86,54 @@ export const Storages = () => {
         const respuesta = await axios.get(`${urlUsers}/responsables`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(`${urlUsers}/responsables`)
-        console.log(respuesta.data)
         setUsers(respuesta.data);
     }
 
     const getCategories = async () => {
+        setStStorage();
         const respuesta = await axios.get(urlCategories, {
             headers: { Authorization: `Bearer ${token}` }
         });
         setCategories(respuesta.data);
     };
 
-const getStorages = async (id) => {
-    setUser([]);
-    setArticles([]);
-    setSelectedCategory(id);
-    setSelectedStorage(null);
-    const respuesta = await axios.get(urlStorage, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-    const filtrados = respuesta.data.filter(st => st.categoryId == id);
-    setStorages(filtrados);
-    const userIds = filtrados.map(storage => storage.userId);
-    setUsuariosConAlmacen(userIds); // guardamos los ids
-};
+    const getStorages = async (id) => {
+        setUser([]);
+        setArticles([]);
+        setSelectedCategory(id);
+        setSelectedStorage(null);
+        setStStorage();
+        const respuesta = await axios.get(urlStorage, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const filtrados = respuesta.data.filter(st => st.categoryId == id);
+        setStorages(filtrados);
+        const userIds = filtrados.map(storage => storage.userId);
+        setUsuariosConAlmacen(userIds);
+    };
+
+    const getStorage = async (id) => {
+        setArticles([]);
+        setSelectedStorage(null);
+        const respuesta = await axios.get(urlStorage, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const storage = respuesta.data.filter(st => st.userId == id)[0];
+        setSelectedCategory(storage.categoryId);
+        setSelectedStorage(storage.id);
+        
+        if(storage) {
+            const respuesta = await axios.get(urlArticles, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const usuario = users.find(us => us.id == userLogg.id);
+            setUser(userLogg.username);
+            setArticles(respuesta.data.filter(at => at.storageId == storage.id));
+        }
+    }
 
     const getArticles = async (id, userIdSt) => {
+        console.log(selectedStorage)
         setSelectedStorage(id);
 
         const storageSelected = storages.find(st => st.id === id);
@@ -118,7 +143,7 @@ const getStorages = async (id) => {
         }
 
         const usuario = users.find(us => us.id == userIdSt);
-    setUser(usuario ? usuario.username : "SIN RESPONSABLE");
+        setUser(usuario ? usuario.username : "SIN RESPONSABLE");
 
         const respuesta = await axios.get(urlArticles, {
             headers: { Authorization: `Bearer ${token}` }
@@ -180,6 +205,8 @@ const getStorages = async (id) => {
                 metodo = "PUT";
                 url += '/'+artId;
             }
+            console.log(metodo)
+            console.log(parametros)
 
             enviarPeticion(metodo, parametros, url, 3);
         }
@@ -281,18 +308,65 @@ const getStorages = async (id) => {
         });
     };
 
+    const [ stStorage, setStStorage ] = useState();
+
+    const getInfoStorage = async (stSelectedId, stResponsableId) => {
+        setSelectedStorage(stSelectedId);
+    
+        let storageSt = storages.find(st => st.id == stSelectedId);
+        setEditName(storageSt.location);
+        setEditUserId(storageSt.userId);
+    
+        const user = users.find(us => us.id == storageSt.userId);
+    
+        if (user) {
+            // Creamos una copia nueva del objeto, con el campo userId renombrado
+            const newStorage = {
+                ...storageSt,
+                userId: user.username
+            };
+            console.log("Modificado:", newStorage);
+            setStStorage(newStorage);
+        } else {
+            console.warn("Usuario no encontrado");
+        }
+    };
+    
+
     return (
         <div className="container-fluid p-4" style={{  background: "linear-gradient(135deg, #1e1e2f, #3c3c52)", minHeight: '100vh' }}>
             <Header />
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
-                {rol != "ADMIN" ? null :(
+                {userLogg.rol != "ADMIN" ? (
+                    <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} />
+                ) :(
                     <>
                         <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
-                        <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getArticles} getUsers={getUsers} />
+                        <StorageSelector storages={storages} selectedStorage={selectedCategory} getArticles={getInfoStorage} getUsers={getUsers} setStUserId={setStUserId} />
+                        {stStorage ? (
+                           <div className="card mt-3 shadow-sm">
+                                <div className="card-body">
+                                    <h5 className="card-title">Información del almacén</h5>
+                            
+                                    <div className="d-flex justify-content-end">
+                                        <button className="btn btn-warning mb-2" data-bs-toggle="modal" data-bs-target="#editStorageModal">Editar almacén</button>
+                                    </div>
+                            
+                                    <p className="card-text mt-2">
+                                        <strong>Nombre del almacén:</strong> {stStorage.location}<br />
+                                        <strong>Nombre del responsable:</strong> {stStorage.userId}
+                                    </p>
+                                </div>
+                            </div>                       
+                        ) : (
+                            <div className="alert alert-light text-center mt-3" role="alert">
+                                No hay almacén seleccionado
+                            </div>
+                        )}
+
                     </>
-                    )}
-                <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} />
+                    )}                
                 </div>
             </div>
 
@@ -385,35 +459,49 @@ const getStorages = async (id) => {
                     </div>
                 </div>
             </div>
-            {/* --------------------- actualizar almacen ---------------------------------------*/}
 
             {selectedStorage && (
-                <div className="card mt-3 p-3 mb-4">
-                    <h5>Editar Almacén</h5>
-                    <input
-                        type="text"
-                        className="form-control mb-2"
-                        value={editName}
-                        placeholder="Nombre del almacén"
-                        onChange={(e) => setEditName(e.target.value)}
-                    />
-                    <select
-                        className="form-select mb-2"
-                        value={editUserId}
-                        onChange={(e) => setEditUserId(e.target.value)}
-                    >
-                        <option value="">Seleccione un usuario</option>
-                        {users
-            .filter((user) => !usuariosConAlmacen.includes(user.id) || user.id === editUserId)
-            .map((user) => (
-                <option key={user.id} value={user.id}>
-                {user.username}
-                </option>
-            ))}
-                    </select>
-                    <button className="btn btn-primary" onClick={handleUpdateStorage}>Actualizar</button>
+                <div className="modal fade" id="editStorageModal" tabIndex="-1" aria-labelledby="editStorageModalLabel" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h4 className="modal-title" id="editStorageModalLabel">Editar Almacén</h4>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <label className="fs-5">Nombre:</label>
+                                <input type="text" className="form-control mb-2 fs-5" value={editName} placeholder="Nombre del almacén" onChange={(e) => setEditName(e.target.value)} />
+                                <label className="fs-5 mt-4">Responsable:</label>
+                                <select className="form-select mb-2 fs-5" value={editUserId} onChange={(e) => setEditUserId(e.target.value)}>
+                                    <option value="">Seleccione un usuario</option>
+                                    {users
+                                        .filter(
+                                        (user) =>
+                                            !usuariosConAlmacen.includes(user.id) ||
+                                            user.id === editUserId
+                                        )
+                                        .map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.username}
+                                        </option>
+                                        ))}
+                                </select>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" className="btn btn-primary" onClick={() => {
+                                    handleUpdateStorage();
+                                    const modalElement = document.getElementById("editStorageModal");
+                                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                    modalInstance.hide();
+                                }}> Actualizar </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
+            
+
         </div>
     );
 };

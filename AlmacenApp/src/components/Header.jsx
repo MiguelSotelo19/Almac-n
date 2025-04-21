@@ -3,7 +3,7 @@ import "./css/Header.css";
 
 export const Header = () => {
     const navigate = useNavigate();
-    const rol = localStorage.getItem("rol");
+    const userLogg = JSON.parse(localStorage.getItem("userLogg"));
 
     const cerrarSesion = () => {
         localStorage.removeItem("token");
@@ -17,9 +17,13 @@ export const Header = () => {
                     <p className="logo">🧃 Almacén Supremo</p>
                 </div>
                 <div className="nav-buttons">
-                    <button className="cool-btn" onClick={() => navigate("/Almacen/Almacenes")}>Almacenes</button>
-                    {rol != "ADMIN" ? null : (<button className="cool-btn" onClick={() => navigate("/Almacen/Usuarios")}>Usuarios</button>)}
-                    <button className="cool-btn" onClick={() => navigate("/Almacen/Bitacora")}>Bitacora</button>
+                    {userLogg.rol != "ADMIN" ? null : (
+                        <>
+                        <button className="cool-btn" onClick={() => navigate("/Almacen/Almacenes")}>Almacenes</button>
+                        <button className="cool-btn" onClick={() => navigate("/Almacen/Usuarios")}>Usuarios</button>
+                        <button className="cool-btn" onClick={() => navigate("/Almacen/Bitacora")}>Bitacora</button>
+                        </>
+                    )}
                 </div>
                 <div>
                     <button className="logout-btn" onClick={cerrarSesion}>Cerrar sesión</button>

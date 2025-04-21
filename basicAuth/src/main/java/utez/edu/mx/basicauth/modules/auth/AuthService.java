@@ -62,7 +62,6 @@ public class AuthService {
             }
 
             user.setUsername(userDTO.getUsername());
-<<<<<<< HEAD
 
             if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
                 if (!userDTO.getPassword().matches("^\\d{3,6}$")) {
@@ -71,9 +70,7 @@ public class AuthService {
                 user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             }
 
-=======
             user.setEmail(userDTO.getEmail());
->>>>>>> feature/Diego
             return userRepository.save(user);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
