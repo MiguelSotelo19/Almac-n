@@ -28,6 +28,7 @@ export const Storages = () => {
     const [categories, setCategories] = useState([]);
     const [articles, setArticles] = useState([]);
     const [user, setUser] = useState([]);
+    const [user2, setUser2] = useState([]);
     const [users, setUsers] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedStorage, setSelectedStorage] = useState(null);
@@ -88,6 +89,7 @@ export const Storages = () => {
         const respuesta = await axios.get(`${urlUsers}/responsables`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+        console.log(respuesta.data)
         setUsers(respuesta.data);
     }
 
@@ -100,7 +102,6 @@ export const Storages = () => {
         const respuestaStorages = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log("almacenes: ", respuestaStorages)
         const userIds = respuestaStorages.data.map(storage => storage.userId);
         setUsuariosConAlmacen(userIds);
         console.log("usuariosConAlmacen: ", userIds);
@@ -139,7 +140,7 @@ export const Storages = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const usuario = users.find(us => us.id == userLogg.id);
-            setUser(userLogg.username);
+            setUser2(userLogg.username);
             setArticles(respuesta.data.filter(at => at.storageId == storage.id));
         }
     }
@@ -153,7 +154,7 @@ export const Storages = () => {
             setEditName(storageSelected.location);
             setEditUserId(storageSelected.userId);
         }
-
+        
         const usuario = users.find(us => us.id == userIdSt);
         setUser(usuario ? usuario.username : "SIN RESPONSABLE");
 
@@ -318,10 +319,6 @@ export const Storages = () => {
             Swal.fire("Sin almacén", "Seleccione un almacén para el artículo.", "warning");
             return;
         }
-        if (!editUserId || editUserId === "") {
-            Swal.fire("Sin usuario seleccionado", "Seleccione un usuario.", "warning");
-            return;
-        }
 
         const parametros = {
             title: nombre,
@@ -386,10 +383,14 @@ export const Storages = () => {
                         icon: 'success'
                     })
                     break;
+                default:
+                    getUsers();
+
             }
         })
             .catch((err) => {
-                console.error("Error en la petición: ", err)
+                console.error("Error en la petición: ", err);
+                getUsers();
             })
     }
 
@@ -509,7 +510,20 @@ export const Storages = () => {
             <div className="row" style={{ margin: 0 }}>
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
                     {userLogg.rol != "ADMIN" ? (
-                        <ArticleTable articles={articles} selectedStorage={selectedStorage} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user} />
+                        <>
+                        {(selectedStorage) ? (
+                            <ArticleTable articles={articles} selectedStorage={selectedStorage} getArticles={getArticles} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user2} />
+                        ): (
+                            <div className="card mt-3">
+                                <div className="card-body">
+                                    <div className="card-title mb-5 fw-bold fs-4">Aún no se le ha asignado un almacén</div>
+                                    <div className="card-text mt-2">
+                                        Actualmente no tienes un almacén asignado. Por favor, contacta con el administrador para completar la asignación.
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        </>
                     ) : (
                         <>
                             <CategorySelector categories={categories} selectedCategory={selectedCategory} getStorages={getStorages} />
@@ -520,9 +534,7 @@ export const Storages = () => {
                                         <h5 className="card-title">Información del almacén</h5>
 
                                         <div className="d-flex justify-content-end">
-                                        <button className="btn btn-warning mb-2" onClick={() => setActIsOpen(true)}>
-  Editar almacén
-</button>                                  
+                                        <button className="btn btn-warning mb-2" onClick={() => setActIsOpen(true)}>Editar almacén</button>                                  
                                         </div>
                                         <p className="card-text mt-2">
                                             <strong>Nombre del almacén:</strong> {stStorage.location}<br />
@@ -581,13 +593,17 @@ export const Storages = () => {
                                     <label htmlFor="userSelect" className="form-label">Seleccionar un responsable de almacén:</label>
                                     <select className="form-select" value={userId} id="userSelect" onChange={(e) => setUserId(e.target.value)}>
                                         <option id="default" value="">-- Selecciona un usuario --</option>
-                                        {users
-                                            .filter((user) => !usuariosConAlmacen.includes(user.id))
-                                            .map((user) => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.username}
-                                                </option>
-                                            ))}
+                                        {users.filter((user) => !usuariosConAlmacen.includes(user.id)).length === 0 ? (
+                                            <option disabled>No hay responsables de almacén disponibles</option>
+                                        ) : (
+                                            users
+                                                .filter((user) => !usuariosConAlmacen.includes(user.id))
+                                                .map((user) => (
+                                                    <option key={user.id} value={user.id}>
+                                                        {user.username}
+                                                    </option>
+                                                ))
+                                        )}
                                     </select>
                                 </div>
                             </form>
