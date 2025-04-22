@@ -15,7 +15,7 @@ const isAuthenticated = () => {
 };
 
 const ProtectedRoute = ({ element }) => {
-    return isAuthenticated() ? element : <Navigate to="/403" replace />;
+    return isAuthenticated() ? element : <Navigate to="/401" replace />;
 };
 
 const RedirectIfAuthenticated = ({ element }) => {
