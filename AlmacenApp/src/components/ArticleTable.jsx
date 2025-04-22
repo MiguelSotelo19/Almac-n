@@ -37,7 +37,8 @@ export const ArticleTable = ({ articles, selectedStorage, getArticles, openAddMo
                     })
                 })
                 .catch((err) => {
-                    console.error("Error al eliminar el artículo: ",err)
+                    
+                    Swal.fire("Error", "Error al eliminar el articulo", "error");
                 })
         });
     }
@@ -55,7 +56,6 @@ export const ArticleTable = ({ articles, selectedStorage, getArticles, openAddMo
                     <th colSpan={5}>Responsable de almacén: {responsable}</th>
                 </tr>
                 <tr>
-                    <th>#</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Cantidad</th>
@@ -66,7 +66,6 @@ export const ArticleTable = ({ articles, selectedStorage, getArticles, openAddMo
                 {articles.length > 0 ? (
                     articles.map(at => (
                         <tr key={at.id}>
-                            <td>{at.id}</td>
                             <td>{at.title}</td>
                             <td>{at.description}</td>
                             <td>{at.cantidad}</td>

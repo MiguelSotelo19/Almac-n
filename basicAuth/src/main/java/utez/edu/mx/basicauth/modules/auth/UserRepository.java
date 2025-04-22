@@ -11,6 +11,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsername(String email); //Sirve para el register
+    boolean existsByEmail(String email);
 
     @Query(value = "SELECT * FROM user WHERE email = :email AND password = :password;", nativeQuery = true)
     User findByUsernameAndPassword(@Param("email") String email, @Param("password") String password);

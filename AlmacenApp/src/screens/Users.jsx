@@ -22,10 +22,10 @@ export const Users = () => {
   const [passwordData, setPasswordData] = useState({ nueva: "", confirmar: "" });
 
   const handleClose = () => { setShow(false); setShowUpdate(false); };
-  const handleShow = () => { 
-    setShow(true); 
-    setSelectedUser(null); 
-    setNewUser({ username: "", password: "", rol: "RESPONSABLE" }); 
+  const handleShow = () => {
+    setShow(true);
+    setSelectedUser(null);
+    setNewUser({ username: "", password: "", rol: "RESPONSABLE" });
   };
 
   const token = localStorage.getItem("token");
@@ -52,10 +52,10 @@ export const Users = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
-      
+
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      Swal.fire("Error", "No se podido obtener la petición", "error");
     }
   };
 
@@ -77,7 +77,6 @@ export const Users = () => {
         fetchUsers();
         Swal.fire("¡Eliminado!", "El usuario ha sido eliminado.", "success");
       } catch (error) {
-        console.error("Error deleting user:", error);
         Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
       }
     }
@@ -95,10 +94,10 @@ export const Users = () => {
   const handleAddUser = async () => {
     const { username, email, password, rol } = newUser;
 
-if (!username || username.trim() === "") {
-  Swal.fire("Nombre requerido", "Por favor, ingresa el nombre de usuario.", "warning");
-  return;
-}
+    if (!username || username.trim() === "" || !/^[A-Za-z]{2,}$/.test(username)) {
+      Swal.fire("Nombre requerido", "Por favor, ingresa un nombre de usuario válido.", "warning");
+      return;
+    }
     if (!email || email.trim() === "" || !/^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       Swal.fire("Correo electrónico no válido", "Por favor, ingresa un correo electrónico válido.", "warning");
       return;
@@ -119,7 +118,6 @@ if (!username || username.trim() === "") {
       handleClose();
       Swal.fire("¡Usuario creado!", "El usuario se ha añadido correctamente.", "success");
     } catch (error) {
-      console.error("Error adding user:", error);
       Swal.fire("Error", "No se pudo agregar el usuario.", "error");
     }
   };
@@ -130,7 +128,7 @@ if (!username || username.trim() === "") {
       if (!userToSend.password || userToSend.password.trim() === "") {
         delete userToSend.password;
       }
-  
+
       await axios.put(`http://localhost:8080/api/auth/users/${selectedUser.id}`, userToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -139,7 +137,6 @@ if (!username || username.trim() === "") {
       setSelectedUser(null);
       Swal.fire("¡Usuario actualizado!", "El usuario se ha actualizado correctamente.", "success");
     } catch (error) {
-      console.error("Error updating user:", error);
       Swal.fire("Error", "No se pudo actualizar el usuario.", "error");
     }
   };
@@ -179,11 +176,22 @@ if (!username || username.trim() === "") {
       handleClosePasswordModal();
       Swal.fire("¡Contraseña actualizada!", "La contraseña se actualizó correctamente.", "success");
     } catch (error) {
-      console.error("Error updating password:", error);
       Swal.fire("Error", "No se pudo actualizar la contraseña.", "error");
     }
   };
 
+  const isFormValid = () => {
+    const username = selectedUser ? selectedUser.username : newUser.username;
+    const email = selectedUser ? selectedUser.email : newUser.email;
+    const password = selectedUser ? selectedUser.password : newUser.password;
+  
+    const usernameValid = /^[A-Za-z]{2,}$/.test(username);
+    const emailValid = /^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    const passwordValid = showUpdate ? true : /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password);
+  
+    return usernameValid && emailValid && passwordValid;
+  };
+  
 
   if (loading) {
     return (
@@ -196,10 +204,10 @@ if (!username || username.trim() === "") {
   }
 
   return (
-    <div className="p-4" style={{  background: "linear-gradient(135deg, #1e1e2f, #3c3c52)", height: '100vh', color: 'white' }}>
+    <div className="p-4" style={{ background: "linear-gradient(135deg, #1e1e2f, #3c3c52)", height: '100vh', color: 'white' }}>
       <Header />
       <h1 className="text-2xl font-bold mb-4">Lista de Responsables de Almacen</h1>
-      <Button onClick={handleShow}>Agregar Responsable</Button>
+      <Button className="mb-3 btn" variant="success" onClick={handleShow}>Agregar Responsable</Button>
 
       {/* Modal para agregar o actualizar usuarios  */}
       <Modal show={show || showUpdate} onHide={handleClose}>
@@ -221,30 +229,47 @@ if (!username || username.trim() === "") {
                   (selectedUser ? selectedUser.username : newUser.username) &&
                   !/^[A-Za-z]{2,}$/.test(selectedUser ? selectedUser.username : newUser.username)
                 }
-                />
-                <Form.Control.Feedback type="invalid">
-                  El nombre de usuario debe contener solo letras sin espacios ni símbolos.
-                </Form.Control.Feedback>
+              />
+              <Form.Control.Feedback type="invalid">
+                El nombre de usuario debe contener solo letras (sin espacios, acentos ni símbolos) y al menos 2 caracteres.
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label className="ms-1">Correo electrónico</Form.Label>
               <Form.Control
                 type="email"
                 name="email"
+                pattern="^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                title="Debe ser un correo electrónico válido, sin espacios ni múltiples '@'."
                 value={selectedUser ? selectedUser.email : newUser.email}
                 onChange={handleInputChange}
+                isInvalid={
+                  (selectedUser ? selectedUser.email : newUser.email) &&
+                  !/^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(selectedUser ? selectedUser.email : newUser.email)
+                }
               />
+              <Form.Control.Feedback type="invalid">
+                Ingresa un correo válido (sin espacios ni múltiples símbolos "@").
+              </Form.Control.Feedback>
             </Form.Group>
             {showUpdate ? null : (<Form.Group>
               <Form.Label className="mt-3 ms-1">Contraseña</Form.Label>
               <Form.Control
                 type="password"
                 name="password"
-                
-                title="Solo números, entre 3 y 6 dígitos."
+                pattern={"^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,}$"}
+                title="Debe tener al menos 8 caracteres, incluyendo una letra mayúscula, un número y un carácter especial."
                 value={selectedUser ? selectedUser.password : newUser.password}
                 onChange={handleInputChange}
+                isInvalid={
+                  (selectedUser ? selectedUser.password : newUser.password) &&
+                  !/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(selectedUser ? selectedUser.password : newUser.password)
+                }
               />
+              <Form.Control.Feedback type="invalid">
+                La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un símbolo especial.
+              </Form.Control.Feedback>
+
             </Form.Group>)}
 
             <Form.Group>
@@ -255,7 +280,6 @@ if (!username || username.trim() === "") {
                   value={selectedUser ? selectedUser.rol : newUser.rol}
                   onChange={handleInputChange}
                 >
-                  <option value="seleccionar">Selecciona uno...</option>
                   <option value="ADMIN">ADMIN</option>
                   <option value="RESPONSABLE">RESPONSABLE</option>
                 </Form.Select>
@@ -265,45 +289,58 @@ if (!username || username.trim() === "") {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-        {show ? null : (<Button variant="light" onClick={handleOpenPasswordModal}>Cambiar Contraseña</Button>)}
+          {show ? null : (<Button variant="light" onClick={handleOpenPasswordModal}>Cambiar Contraseña</Button>)}
           <Button variant="secondary" onClick={handleClose}>Cerrar</Button>
-          <Button variant="primary" onClick={showUpdate ? handleUpdateUser : handleAddUser}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (!isFormValid()) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Formulario inválido',
+                  text: 'Por favor, revisa los campos marcados en rojo.',
+                });
+                return;
+              }
+              showUpdate ? handleUpdateUser() : handleAddUser();
+            }}
+          >
             {showUpdate ? "Actualizar Usuario" : "Agregar Usuario"}
           </Button>
         </Modal.Footer>
       </Modal>
 
       <Modal show={showPasswordModal} onHide={handleClosePasswordModal}>
-  <Modal.Header closeButton>
-    <Modal.Title>Cambiar Contraseña</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <Form>
-      <Form.Group>
-        <Form.Label>Nueva Contraseña</Form.Label>
-        <Form.Control
-          type="password"
-          name="nueva"
-          value={passwordData.nueva}
-          onChange={(e) => setPasswordData({ ...passwordData, nueva: e.target.value })}
-        />
-      </Form.Group>
-      <Form.Group className="mt-3">
-        <Form.Label>Confirmar Nueva Contraseña</Form.Label>
-        <Form.Control
-          type="password"
-          name="confirmar"
-          value={passwordData.confirmar}
-          onChange={(e) => setPasswordData({ ...passwordData, confirmar: e.target.value })}
-        />
-      </Form.Group>
-    </Form>
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={handleClosePasswordModal}>Cancelar</Button>
-    <Button variant="primary" onClick={handleChangePassword}>Actualizar Contraseña</Button>
-  </Modal.Footer>
-</Modal>
+        <Modal.Header closeButton>
+          <Modal.Title>Cambiar Contraseña</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Nueva Contraseña</Form.Label>
+              <Form.Control
+                type="password"
+                name="nueva"
+                value={passwordData.nueva}
+                onChange={(e) => setPasswordData({ ...passwordData, nueva: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group className="mt-3">
+              <Form.Label>Confirmar Nueva Contraseña</Form.Label>
+              <Form.Control
+                type="password"
+                name="confirmar"
+                value={passwordData.confirmar}
+                onChange={(e) => setPasswordData({ ...passwordData, confirmar: e.target.value })}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClosePasswordModal}>Cancelar</Button>
+          <Button variant="primary" onClick={handleChangePassword}>Actualizar Contraseña</Button>
+        </Modal.Footer>
+      </Modal>
 
 
       <Table striped bordered hover>
@@ -330,7 +367,7 @@ if (!username || username.trim() === "") {
           ))}
         </tbody>
       </Table>
-      </div>
+    </div>
   );
 };
 

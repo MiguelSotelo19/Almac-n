@@ -102,17 +102,37 @@ public class AuthService {
     }
     @Transactional(rollbackOn = {SQLException.class, Exception.class})
     public ResponseEntity<?> register(RegisterDTO dto) {
-        // Validaciones
-        if (!dto.getUsername().matches("^[A-Za-z]{2,}$")) {
-            return customResponse.getErrorResponse("El nombre de usuario solo debe contener letras sin espacios ni símbolos.");
+        String username = dto.getUsername() != null ? dto.getUsername().trim() : "";
+        String email = dto.getEmail() != null ? dto.getEmail().trim().toLowerCase() : "";
+        String password = dto.getPassword() != null ? dto.getPassword() : "";
+
+        // Validación de nombre (nombre + apellido, solo letras y espacios)
+        if (!username.matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$")) {
+            return customResponse.getErrorResponse("El nombre debe tener al menos nombre y apellido, y solo letras.");
         }
-        if (!dto.getPassword().matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
-            return customResponse.getErrorResponse("La contraseña debe contener al menos 8 carácteres, una mayúscula, un número y un carácter especial.");
+
+        // Validación de email
+        if (email.isBlank() || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            return customResponse.getErrorResponse("Introduce un correo electrónico válido.");
+        }
+
+        // Validación de contraseña
+        if (!password.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
+            return customResponse.getErrorResponse("La contraseña debe contener al menos 8 caracteres, una mayúscula, un número y un carácter especial.");
+        }
+        if (password.contains(" ")) {
+            return customResponse.getErrorResponse("La contraseña no debe contener espacios.");
+        }
+        if (password.toLowerCase().contains(username.toLowerCase()) || password.toLowerCase().contains(email.toLowerCase())) {
+            return customResponse.getErrorResponse("La contraseña no debe contener tu nombre ni tu correo.");
         }
 
         // Verificación de usuario existente
         if (userRepository.existsByUsername(dto.getUsername())) {
             return customResponse.getErrorResponse("El usuario ya existe");
+        }
+        if (userRepository.existsByEmail(email)) {
+            return customResponse.getErrorResponse("El correo electrónico ya está registrado.");
         }
 
         // Crear y guardar usuario

@@ -47,6 +47,17 @@ export const Storages = () => {
     const [usuariosConAlmacenEspecif, setUsuariosConAlmacenEspecif] = useState([]);
     const [usuariosConAlmacen, setUsuariosConAlmacen] = useState([]);
 
+    //Feedbacks
+    const [nameError, setNameError] = useState("");
+    const [descError, setDescError] = useState("");
+    const [cantError, setCantError] = useState("");
+    const [locationError, setLocationError] = useState("");
+    const [locationValid, setLocationValid] = useState(null);
+    const [userError, setUserError] = useState("");
+    const [userValid, setUserValid] = useState(null);
+    const [catError, setCatError] = useState("");
+
+
     const token = localStorage.getItem("token");
     const userLogg = JSON.parse(localStorage.getItem("userLogg"));
 
@@ -89,7 +100,6 @@ export const Storages = () => {
         const respuesta = await axios.get(`${urlUsers}/responsables`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(respuesta.data)
         setUsers(respuesta.data);
     }
 
@@ -104,9 +114,7 @@ export const Storages = () => {
         });
         const userIds = respuestaStorages.data.map(storage => storage.userId);
         setUsuariosConAlmacen(userIds);
-        console.log("usuariosConAlmacen: ", userIds);
 
-        console.log("usuariosConAlmacen: ", usuariosConAlmacen)
     };
 
     const getStorages = async (id) => {
@@ -122,7 +130,6 @@ export const Storages = () => {
         setStorages(filtrados);
         const userIds = filtrados.map(storage => storage.userId);
         setUsuariosConAlmacenEspecif(userIds);
-        console.log("usuariosConAlmacenEspecif: ", usuariosConAlmacenEspecif)
     };
 
     const getStorage = async (id) => {
@@ -146,7 +153,6 @@ export const Storages = () => {
     }
 
     const getArticles = async (id, userIdSt) => {
-        console.log(selectedStorage)
         setSelectedStorage(id);
 
         const storageSelected = storages.find(st => st.id === id);
@@ -154,7 +160,7 @@ export const Storages = () => {
             setEditName(storageSelected.location);
             setEditUserId(storageSelected.userId);
         }
-        
+
         const usuario = users.find(us => us.id == userIdSt);
         setUser(usuario ? usuario.username : "SIN RESPONSABLE");
 
@@ -164,77 +170,71 @@ export const Storages = () => {
         setArticles(respuesta.data.filter(at => at.storageId == id));
     };
 
-    const validarCat = () => {
-        let nombre = catName.trim();
+    const validateCatName = (nombre) => {
+        if (!nombre.trim()) return "Ingresa un nombre válido.";
+        if (nombre.length < 3) return "El nombre debe tener al menos 3 caracteres.";
+        if (nombre.length > 50) return "El nombre no debe superar los 50 caracteres.";
+        if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$/.test(nombre.trim())) return "Debe tener nombre y apellido.";
+        if (/\s{2,}/.test(nombre)) return "Evita usar múltiples espacios seguidos.";
+        return "";
+    };
 
-        if (!nombre) {
-            Swal.fire("Nombre vacío", "Ingresa un nombre válido.", "warning");
+    const validateCat = () => {
+        const nombre = catName.trim();
+        const error = validateCatName(nombre);
+
+        if (error) {
+            Swal.fire("Error de validación", error, "warning");
             return;
         }
 
-        if (nombre.length < 3) {
-            Swal.fire("Nombre muy corto", "El nombre debe tener al menos 3 caracteres.", "warning");
-            return;
-        }
+        const parametros = { name: nombre };
+        sendRequest("POST", parametros, urlCategories, 1);
 
-        if (nombre.length > 50) {
-            Swal.fire("Nombre muy largo", "El nombre no debe superar los 50 caracteres.", "warning");
-            return;
-        }
-
-        const regex = /^[a-zA-ZÁÉÍÓÚÑáéíóúñ0-9\s\-_.()]+$/;
-        if (!regex.test(nombre)) {
-            Swal.fire("Caracteres inválidos", "El nombre contiene caracteres no permitidos.", "warning");
-            return;
-        }
-
-        if (/\s{2,}/.test(nombre)) {
-            Swal.fire("Espacios múltiples", "Evita usar múltiples espacios seguidos.", "warning");
-            return;
-        }
-
-        let parametros = {
-            name: nombre
-        };
-
-        enviarPeticion("POST", parametros, urlCategories, 1);
     };
 
 
-    const validarSt = () => {
+    const validateSt = () => {
         let loc = location.trim();
         let user = userId;
 
+        let valido = true;
+
         if (!loc) {
-            Swal.fire("Localización inválida", "Ingresa una localización válida.", "warning");
-            return;
+            setLocationError("Ingresa una localización válida.");
+            setLocationValid(false);
+            valido = false;
+        } else if (loc.length < 3) {
+            setLocationError("Debe contener al menos 3 caracteres.");
+            setLocationValid(false);
+            valido = false;
+        } else if (loc.length > 100) {
+            setLocationError("Debe contener menos de 100 caracteres.");
+            setLocationValid(false);
+            valido = false;
+        } else if (!/^[a-zA-ZÁÉÍÓÚÜÑáéíóúüñ0-9\s\-_.()#\/]+$/.test(loc)) {
+            setLocationError("La localización contiene caracteres no permitidos.");
+            setLocationValid(false);
+            valido = false;
+        } else if (/\s{2,}/.test(loc)) {
+            setLocationError("Evita usar múltiples espacios seguidos en la localización.");
+            setLocationValid(false);
+            valido = false;
+        } else {
+            setLocationError("");
+            setLocationValid(true);
         }
 
-        if (loc.length < 3) {
-            Swal.fire("Localización muy corta", "Debe contener al menos 3 caracteres.", "warning");
-            return;
+        if (!user || user === "") {
+            setUserError("Seleccione un usuario responsable del almacén.");
+            setUserValid(false);
+            valido = false;
+        } else {
+            setUserError("");
+            setUserValid(true);
         }
 
-        if (loc.length > 100) {
-            Swal.fire("Localización muy larga", "Debe contener menos de 100 caracteres.", "warning");
-            return;
-        }
-
-        const regexLoc = /^[a-zA-ZÁÉÍÓÚÜÑáéíóúüñ0-9\s\-_.()#\/]+$/;
-        if (!regexLoc.test(loc)) {
-            Swal.fire("Caracteres inválidos", "La localización contiene caracteres no permitidos.", "warning");
-            return;
-        }
-
-        if (/\s{2,}/.test(loc)) {
-            Swal.fire("Espacios múltiples", "Evita usar múltiples espacios seguidos en la localización.", "warning");
-            return;
-        }
-
-        if (!user || user === "" || user == "") {
-            Swal.fire("Sin usuario seleccionado", "Seleccione un usuario responsable del almacén.", "warning");
-            return;
-        }
+        if (!valido) return;
 
         let parametros = {
             location: loc,
@@ -242,83 +242,73 @@ export const Storages = () => {
             userId: user
         };
 
-        enviarPeticion("POST", parametros, urlStorage, 2);
+        sendRequest("POST", parametros, urlStorage, 2);
     };
 
 
-    const validarArt = () => {
-        let metodo = "POST";
-        let url = urlArticles;
+    const validateArt = () => {
+        setNameError("");
+        setDescError("");
+        setCantError("");
 
+        let valido = true;
         const nombre = artName.trim();
         const descripcion = artDesc.trim();
         const cantidad = parseInt(artCant);
 
-        if (!nombre) {
-            Swal.fire("Nombre vacío", "Ingresa un nombre válido para el artículo.", "warning");
-            return;
-        }
-
-        if (nombre.length < 3) {
-            Swal.fire("Nombre muy corto", "El nombre debe tener al menos 3 caracteres.", "warning");
-            return;
-        }
-
-        if (nombre.length > 100) {
-            Swal.fire("Nombre muy largo", "El nombre no debe superar los 100 caracteres.", "warning");
-            return;
-        }
-
         const regexNombre = /^[a-zA-ZÁÉÍÓÚÜÑáéíóúüñ0-9\s\-_.()#\/]+$/;
-        if (!regexNombre.test(nombre)) {
-            Swal.fire("Caracteres inválidos", "El nombre contiene caracteres no permitidos.", "warning");
-            return;
-        }
+        const regexDescripcion = /^[a-zA-ZÁÉÍÓÚÜÑáéíóúüñ0-9\s\-_.(),;:¿?!¡"']+$/;
 
-        if (/\s{2,}/.test(nombre)) {
-            Swal.fire("Espacios múltiples", "Evita usar múltiples espacios seguidos en el nombre.", "warning");
-            return;
+        if (!nombre) {
+            setNameError("Ingresa un nombre válido.");
+            valido = false;
+        } else if (nombre.length < 3) {
+            setNameError("Debe tener al menos 3 caracteres.");
+            valido = false;
+        } else if (nombre.length > 100) {
+            setNameError("No debe superar los 100 caracteres.");
+            valido = false;
+        } else if (!regexNombre.test(nombre)) {
+            setNameError("Contiene caracteres no permitidos.");
+            valido = false;
+        } else if (/\s{2,}/.test(nombre)) {
+            setNameError("Evita múltiples espacios seguidos.");
+            valido = false;
         }
 
         if (!descripcion) {
-            Swal.fire("Descripción vacía", "Ingresa una descripción válida para el artículo.", "warning");
-            return;
-        }
-
-        if (descripcion.length < 5) {
-            Swal.fire("Descripción muy corta", "La descripción debe tener al menos 5 caracteres.", "warning");
-            return;
-        }
-
-        if (descripcion.length > 500) {
-            Swal.fire("Descripción muy larga", "La descripción no debe superar los 500 caracteres.", "warning");
-            return;
-        }
-
-        const regexDescripcion = /^[a-zA-ZÁÉÍÓÚÜÑáéíóúüñ0-9\s\-_.(),;:¿?!¡"']+$/;
-        if (!regexDescripcion.test(descripcion)) {
-            Swal.fire("Caracteres inválidos", "La descripción contiene caracteres no permitidos.", "warning");
-            return;
-        }
-
-        if (/\s{2,}/.test(descripcion)) {
-            Swal.fire("Espacios múltiples", "Evita usar múltiples espacios seguidos en la descripción.", "warning");
-            return;
+            setDescError("Ingresa una descripción válida.");
+            valido = false;
+        } else if (descripcion.length < 5) {
+            setDescError("Debe tener al menos 5 caracteres.");
+            valido = false;
+        } else if (descripcion.length > 500) {
+            setDescError("No debe superar los 500 caracteres.");
+            valido = false;
+        } else if (!regexDescripcion.test(descripcion)) {
+            setDescError("Contiene caracteres no permitidos.");
+            valido = false;
+        } else if (/\s{2,}/.test(descripcion)) {
+            setDescError("Evita múltiples espacios seguidos.");
+            valido = false;
         }
 
         if (isNaN(cantidad) || cantidad < 0) {
-            Swal.fire("Cantidad inválida", "Ingresa una cantidad válida (0 o más).", "warning");
-            return;
+            setCantError("Ingresa una cantidad válida (0 o más).");
+            valido = false;
         }
 
         if (!selectedCategory) {
             Swal.fire("Sin categoría", "Seleccione una categoría para el artículo.", "warning");
             return;
         }
+
         if (!selectedStorage) {
             Swal.fire("Sin almacén", "Seleccione un almacén para el artículo.", "warning");
             return;
         }
+
+        if (!valido) return;
 
         const parametros = {
             title: nombre,
@@ -328,19 +318,34 @@ export const Storages = () => {
             storageId: selectedStorage
         };
 
-        if (isUpdate) {
-            metodo = "PUT";
-            url += "/" + artId;
-        }
+        const metodo = isUpdate ? "PUT" : "POST";
+        const urlFinal = isUpdate ? `${urlArticles}/${artId}` : urlArticles;
 
-        console.log(metodo);
-        console.log(parametros);
-
-        enviarPeticion(metodo, parametros, url, 3);
+        sendRequest(metodo, parametros, urlFinal, 3);
     };
 
+    const handleChangeCatName = (e) => {
+        const value = e.target.value;
+        setCatName(value);
+        const error = validateCatName(value);
+        setCatError(error);
+    };
 
-    const enviarPeticion = async (metodo, parametros, url, type) => {
+    const clear = () => {
+        
+    setSelectedCategory(null);
+    setSelectedStorage(null);
+    setNameError("");
+    setDescError("");
+    setCantError("");
+    setLocationError("");
+    setLocationValid(null);
+    setUserError("");
+    setUserValid(null);
+    setCatError("");
+    }
+
+    const sendRequest = async (metodo, parametros, url, type) => {
         await axios({
             method: metodo,
             url: url,
@@ -353,6 +358,7 @@ export const Storages = () => {
                 case 1:
                     getCategories();
                     setCatName("");
+                    clear()
                     document.getElementById("categories").querySelector(".btn-close").click();
                     Swal.fire({
                         title: 'Categoria registrada',
@@ -363,6 +369,7 @@ export const Storages = () => {
                 case 2:
                     getStorages(selectedCategory);
                     setLocation("");
+                    clear()
                     document.getElementById("storages").querySelector(".btn-close").click();
                     Swal.fire({
                         title: 'Almacén registrada',
@@ -376,6 +383,7 @@ export const Storages = () => {
                     setIsUpdate(false);
                     setArtDesc("");
                     setArtName("");
+                    clear()
                     document.getElementById("articles").querySelector(".btn-close").click();
                     Swal.fire({
                         title: isUpdate ? 'Articulo actualizado' : 'Articulo registrado',
@@ -389,7 +397,7 @@ export const Storages = () => {
             }
         })
             .catch((err) => {
-                console.error("Error en la petición: ", err);
+                Swal.fire("Error", "No se podido enviar la petición", "error");
                 getUsers();
             })
     }
@@ -467,6 +475,7 @@ export const Storages = () => {
             Swal.fire("Actualizado", "El almacén fue actualizado correctamente", "success");
             closeModalAct()
             getStorages();
+            clear()
         } catch (error) {
             Swal.fire("Error", "No se pudo actualizar el almacén", "error");
             console.error(error);
@@ -491,12 +500,10 @@ export const Storages = () => {
         const user = users.find(us => us.id == storageSt.userId);
 
         if (user) {
-            // Creamos una copia nueva del objeto, con el campo userId renombrado
             const newStorage = {
                 ...storageSt,
                 userId: user.username
             };
-            console.log("Modificado:", newStorage);
             setStStorage(newStorage);
         } else {
             console.warn("Usuario no encontrado");
@@ -511,18 +518,18 @@ export const Storages = () => {
                 <div className="col-lg-7 col-md-8 col-12 offset-lg-2 offset-md-3" style={{ paddingTop: '20px' }}>
                     {userLogg.rol != "ADMIN" ? (
                         <>
-                        {(selectedStorage) ? (
-                            <ArticleTable articles={articles} selectedStorage={selectedStorage} getArticles={getArticles} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user2} />
-                        ): (
-                            <div className="card mt-3">
-                                <div className="card-body">
-                                    <div className="card-title mb-5 fw-bold fs-4">Aún no se le ha asignado un almacén</div>
-                                    <div className="card-text mt-2">
-                                        Actualmente no tienes un almacén asignado. Por favor, contacta con el administrador para completar la asignación.
+                            {(selectedStorage) ? (
+                                <ArticleTable articles={articles} selectedStorage={selectedStorage} getArticles={getArticles} openAddModal={openAddModal} openUpdateModal={openUpdateModal} responsable={user2} />
+                            ) : (
+                                <div className="card mt-3">
+                                    <div className="card-body">
+                                        <div className="card-title mb-5 fw-bold fs-4">Aún no se le ha asignado un almacén</div>
+                                        <div className="card-text mt-2">
+                                            Actualmente no tienes un almacén asignado. Por favor, contacta con el administrador para completar la asignación.
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                         </>
                     ) : (
                         <>
@@ -534,7 +541,7 @@ export const Storages = () => {
                                         <h5 className="card-title">Información del almacén</h5>
 
                                         <div className="d-flex justify-content-end">
-                                        <button className="btn btn-warning mb-2" onClick={() => setActIsOpen(true)}>Editar almacén</button>                                  
+                                            <button className="btn btn-warning mb-2" onClick={() => setActIsOpen(true)}>Editar almacén</button>
                                         </div>
                                         <p className="card-text mt-2">
                                             <strong>Nombre del almacén:</strong> {stStorage.location}<br />
@@ -564,13 +571,24 @@ export const Storages = () => {
                             <form>
                                 <div className="mb-3">
                                     <label htmlFor="nombreCat" className="form-label">Nombre:</label>
-                                    <input type="text" className="form-control" id="nombreCat" placeholder="Nombre de la categoría" onInput={(e) => setCatName(e.target.value)} />
+                                    <input
+                                        type="text"
+                                        className={`form-control ${catError === "" && catName !== "" ? "is-valid" : ""} ${catError !== "" ? "is-invalid" : ""}`}
+                                        id="nombreCat"
+                                        placeholder="Nombre de la categoría"
+                                        value={catName}
+                                        onInput={handleChangeCatName}
+                                    />
+                                    {catError && <div className="invalid-feedback">{catError}</div>}
+                                    {catError === "" && catName !== "" && (
+                                        <div className="valid-feedback">Nombre válido</div>
+                                    )}
                                 </div>
                             </form>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => validarCat()}>Añadir</button>
+                            <button type="button" className="btn btn-primary" onClick={() => validateCat()}>Añadir</button>
                         </div>
                     </div>
                 </div>
@@ -587,11 +605,24 @@ export const Storages = () => {
                             <form>
                                 <div className="mb-3">
                                     <label htmlFor="locationSt" className="form-label">Localización:</label>
-                                    <input type="text" className="form-control" id="locationSt" placeholder="Localización del almacén" value={location} onInput={(e) => setLocation(e.target.value)} />
+                                    <input
+                                        type="text"
+                                        className={`form-control ${locationValid === false ? "is-invalid" : locationValid === true ? "is-valid" : ""}`}
+                                        id="locationSt"
+                                        placeholder="Localización del almacén"
+                                        value={location}
+                                        onInput={(e) => setLocation(e.target.value)}
+                                    />
+                                    {locationValid === false && <div className="invalid-feedback">{locationError}</div>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="userSelect" className="form-label">Seleccionar un responsable de almacén:</label>
-                                    <select className="form-select" value={userId} id="userSelect" onChange={(e) => setUserId(e.target.value)}>
+                                    <select
+                                        className={`form-select ${userValid === false ? "is-invalid" : userValid === true ? "is-valid" : ""}`}
+                                        value={userId}
+                                        id="userSelect"
+                                        onChange={(e) => setUserId(e.target.value)}
+                                    >
                                         <option id="default" value="">-- Selecciona un usuario --</option>
                                         {users.filter((user) => !usuariosConAlmacen.includes(user.id)).length === 0 ? (
                                             <option disabled>No hay responsables de almacén disponibles</option>
@@ -605,16 +636,18 @@ export const Storages = () => {
                                                 ))
                                         )}
                                     </select>
+                                    {userValid === false && <div className="invalid-feedback">{userError}</div>}
                                 </div>
                             </form>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => validarSt()}>Añadir</button>
+                            <button type="button" className="btn btn-primary" onClick={validateSt}>Añadir</button>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             <div className="modal fade" id="articles" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered">
@@ -627,76 +660,81 @@ export const Storages = () => {
                             <form>
                                 <div className="mb-3">
                                     <label htmlFor="nombreCat" className="form-label">Nombre:</label>
-                                    <input type="text" className="form-control" id="nombreCat" placeholder="Nombre del artículo" value={artName} onInput={(e) => setArtName(e.target.value)} />
+                                    <input type="text" className={`form-control ${nameError ? "is-invalid" : ""}`} placeholder="Nombre del artículo" value={artName} onInput={(e) => setArtName(e.target.value)} />
+                                    {nameError && <div className="invalid-feedback">{nameError}</div>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="nombreCat" className="form-label">Descripción:</label>
-                                    <input type="text" className="form-control" id="nombreCat" placeholder="Descripción del artículo" value={artDesc} onInput={(e) => setArtDesc(e.target.value)} />
-                                </div>
+                                    <input type="text" className={`form-control ${descError ? "is-invalid" : ""}`} placeholder="Descripción del artículo" value={artDesc} onInput={(e) => setArtDesc(e.target.value)} />
+                                    {descError && <div className="invalid-feedback">{descError}
+
+                                    </div>}                                </div>
                                 <div className="mb-3">
                                     <label htmlFor="nombreCat" className="form-label">Cantidad:</label>
-                                    <input type="number" className="form-control" id="nombreCat" placeholder="Cantidad de artículos" value={artCant} onInput={(e) => setArtCant(e.target.value)} />
-                                </div>
+                                    <input type="number" className={`form-control ${cantError ? "is-invalid" : ""}`} placeholder="Cantidad de artículos" value={artCant} onInput={(e) => setArtCant(e.target.value)} />
+                                    {cantError && <div className="invalid-feedback">{cantError}
+
+                                    </div>}                                </div>
                             </form>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => validarArt()}>{isUpdate ? "Actualizar" : "Añadir"}</button>
+                            <button type="button" className="btn btn-primary" onClick={() => validateArt()}>{isUpdate ? "Actualizar" : "Añadir"}</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             {modalActIsOpen && (
-    <>
-        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h4 className="modal-title">Editar Almacén</h4>
-                        <button type="button" className="btn-close" onClick={closeModalAct}></button>
+                <>
+                    <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h4 className="modal-title">Editar Almacén</h4>
+                                    <button type="button" className="btn-close" onClick={closeModalAct}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <label className="fs-5">Nombre:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control mb-2 fs-5"
+                                        value={editName}
+                                        placeholder="Nombre del almacén"
+                                        onChange={(e) => setEditName(e.target.value)}
+                                    />
+                                    <label className="fs-5 mt-4">Responsable:</label>
+                                    <select
+                                        className="form-select mb-2 fs-5"
+                                        value={editUserId}
+                                        onChange={(e) => setEditUserId(e.target.value)}
+                                    >
+                                        {users
+                                            .filter((user) => !usuariosConAlmacen.includes(user.id) || user.id === editUserId)
+                                            .map((user) => (
+                                                <option key={user.id} value={user.id}>
+                                                    {user.username}
+                                                </option>
+                                            ))}
+                                    </select>
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" onClick={closeModalAct}>
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={handleUpdateStorage}
+                                    >
+                                        Actualizar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="modal-body">
-                        <label className="fs-5">Nombre:</label>
-                        <input
-                            type="text"
-                            className="form-control mb-2 fs-5"
-                            value={editName}
-                            placeholder="Nombre del almacén"
-                            onChange={(e) => setEditName(e.target.value)}
-                        />
-                        <label className="fs-5 mt-4">Responsable:</label>
-                        <select
-                            className="form-select mb-2 fs-5"
-                            value={editUserId}
-                            onChange={(e) => setEditUserId(e.target.value)}
-                        >
-                            {users
-                                .filter((user) => !usuariosConAlmacen.includes(user.id) || user.id === editUserId)
-                                .map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.username}
-                                    </option>
-                                ))}
-                        </select>
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={closeModalAct}>
-                            Cancelar
-                        </button>
-                        <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={handleUpdateStorage}
-                        >
-                            Actualizar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </>
-)}
+                </>
+            )}
 
 
         </div>
