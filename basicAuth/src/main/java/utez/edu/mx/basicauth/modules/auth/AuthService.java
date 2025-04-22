@@ -106,8 +106,8 @@ public class AuthService {
         if (!dto.getUsername().matches("^[A-Za-z]{2,}$")) {
             return customResponse.getErrorResponse("El nombre de usuario solo debe contener letras sin espacios ni símbolos.");
         }
-        if (!dto.getPassword().matches("^\\d{3,6}$")) {
-            return customResponse.getErrorResponse("La contraseña debe contener solo números (mínimo 3 y máximo 6 dígitos).");
+        if (!dto.getPassword().matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
+            return customResponse.getErrorResponse("La contraseña debe contener al menos 8 carácteres, una mayúscula, un número y un carácter especial.");
         }
 
         // Verificación de usuario existente

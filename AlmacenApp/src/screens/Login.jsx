@@ -44,15 +44,15 @@ export const Login = () => {
             }, {
                 withCredentials: true
             });
-            console.log("response: ",response)
+            
 
             if (response.status === 200) {
                 localStorage.setItem("token", response.data.data);
-                console.log(response.data.data)
+                
                 const responseUser = await axios.get("http://localhost:8080/api/auth/users", {
                     headers: { Authorization: `Bearer ${response.data.data}` },
                 });
-                console.log("usuarios: ",responseUser)
+                
                 const usuarios = responseUser.data;
                 const usuarioLogueado = usuarios.find(u => u.email === email);
 
