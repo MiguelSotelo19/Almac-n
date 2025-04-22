@@ -52,7 +52,7 @@ export const Users = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
-      console.log(response.data)
+      
       setLoading(false);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -93,10 +93,12 @@ export const Users = () => {
   };
 
   const handleAddUser = async () => {
-    if (!username || username.trim() === "") {
-      Swal.fire("Nombre requerido", "Por favor, ingresa el nombre de usuario.", "warning");
-      return;
-    }
+    const { username, email, password, rol } = newUser;
+
+if (!username || username.trim() === "") {
+  Swal.fire("Nombre requerido", "Por favor, ingresa el nombre de usuario.", "warning");
+  return;
+}
     if (!email || email.trim() === "" || !/^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       Swal.fire("Correo electrónico no válido", "Por favor, ingresa un correo electrónico válido.", "warning");
       return;
@@ -238,7 +240,7 @@ export const Users = () => {
               <Form.Control
                 type="password"
                 name="password"
-                pattern="^\d{3,6}$"
+                
                 title="Solo números, entre 3 y 6 dígitos."
                 value={selectedUser ? selectedUser.password : newUser.password}
                 onChange={handleInputChange}
