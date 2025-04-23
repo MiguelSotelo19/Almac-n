@@ -57,15 +57,15 @@ public class AuthService {
         if (existingUser.isPresent()) {
             User user = existingUser.get();
 
-            if (!userDTO.getUsername().matches("^[A-Za-z]{2,}$")) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de usuario solo debe contener letras sin espacios ni símbolos.");
+            if (!userDTO.getUsername().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre debe tener al menos nombre y apellido, y solo letras.");
             }
 
             user.setUsername(userDTO.getUsername());
 
             if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
-                if (!userDTO.getPassword().matches("^\\d{3,6}$")) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña debe contener solo números (mínimo 3 y máximo 6 dígitos).");
+                if (!userDTO.getPassword().matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña debe contener al menos 8 caracteres, una mayúscula, un número y un carácter especial.");
                 }
                 user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             }

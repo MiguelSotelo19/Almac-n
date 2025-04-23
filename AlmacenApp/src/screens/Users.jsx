@@ -94,7 +94,7 @@ export const Users = () => {
   const handleAddUser = async () => {
     const { username, email, password, rol } = newUser;
 
-    if (!username || username.trim() === "" || !/^[A-Za-z]{2,}$/.test(username)) {
+    if (!username || username.trim() === "" || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$/.test(username)) {
       Swal.fire("Nombre requerido", "Por favor, ingresa un nombre de usuario válido.", "warning");
       return;
     }
@@ -185,7 +185,7 @@ export const Users = () => {
     const email = selectedUser ? selectedUser.email : newUser.email;
     const password = selectedUser ? selectedUser.password : newUser.password;
   
-    const usernameValid = /^[A-Za-z]{2,}$/.test(username);
+    const usernameValid = /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$/.test(username);
     const emailValid = /^(?!.*\s)(?!.*@.*@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
     const passwordValid = showUpdate ? true : /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password);
   
@@ -221,17 +221,17 @@ export const Users = () => {
               <Form.Control
                 type="text"
                 name="username"
-                pattern="^[A-Za-z]{2,}$"
+                pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$"
                 title="Solo letras sin acentos, sin espacios, puntos ni comas."
                 value={selectedUser ? selectedUser.username : newUser.username}
                 onChange={handleInputChange}
                 isInvalid={
                   (selectedUser ? selectedUser.username : newUser.username) &&
-                  !/^[A-Za-z]{2,}$/.test(selectedUser ? selectedUser.username : newUser.username)
+                  !/^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$/.test(selectedUser ? selectedUser.username : newUser.username)
                 }
               />
               <Form.Control.Feedback type="invalid">
-                El nombre de usuario debe contener solo letras (sin espacios, acentos ni símbolos) y al menos 2 caracteres.
+                El nombre debe tener al menos nombre y apellido, y solo letras.
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
