@@ -28,6 +28,6 @@ public class Storages {
     private Category category;
 
     @OneToOne
-    @JoinColumn(name = "empleado_id")
+    @JoinColumn(name = "empleado_id", nullable = true)
     private User user;
 }

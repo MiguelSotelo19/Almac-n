@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 
-export const StorageSelector = ({ storages, selectedStorage, getArticles, getUsers }) => {
-    console.log(selectedStorage)
+export const StorageSelector = ({ storages, selectedStorage, getArticles, getUsers, setStUserId }) => {    
     return selectedStorage ? (
+        <>
         <div className="card mb-4">
             <div className="card-body">
                 <div className="d-lg-flex justify-content-between align-items-center">
@@ -19,7 +20,7 @@ export const StorageSelector = ({ storages, selectedStorage, getArticles, getUse
                                 <div className="form-check" key={st.id}>
                                     <input type="radio" id={`st_${st.id}`} name="storage" 
                                         value={st.id} className="form-check-input" 
-                                        onChange={() => getArticles(st.id, st.userId)} 
+                                        onChange={() =>{ getArticles(st.id, st.userId); setStUserId(st.userId);}} 
                                         />{/*checked={selectedStorage === st.id}*/}
                                     <label className="form-check-label" htmlFor={`st_${st.id}`}>{st.location}</label>
                                 </div>
@@ -29,5 +30,6 @@ export const StorageSelector = ({ storages, selectedStorage, getArticles, getUse
                 </div>
             </div>
         </div>
+        </>
     ) : null;
 };

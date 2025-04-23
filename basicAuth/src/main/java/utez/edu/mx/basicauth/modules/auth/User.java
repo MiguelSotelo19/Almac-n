@@ -12,6 +12,8 @@ public class User {
 
     @Column(name = "username", nullable = false)
     private String username;
+    @Column(name = "email", nullable = false)
+    private String email;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -22,9 +24,10 @@ public class User {
     public User() {
     }
 
-    public User(String username, String rol, String password, Long id) {
+    public User(String username, String rol, String email,String password, Long id) {
         this.username = username;
         this.rol = rol;
+        this.email = email;
         this.password = password;
         this.id = id;
     }
@@ -59,5 +62,23 @@ public class User {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public String getEmail() {return email;}
+
+    public void setEmail(String email) {this.email = email;}
+
+    public static class PasswordDTO {
+        private String password;
+
+        public PasswordDTO() {}
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 }
