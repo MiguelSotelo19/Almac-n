@@ -71,6 +71,7 @@ public class AuthService {
             }
 
             user.setEmail(userDTO.getEmail());
+            user.setRol(userDTO.getRol());
             return userRepository.save(user);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");

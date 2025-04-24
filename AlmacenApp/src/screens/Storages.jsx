@@ -121,7 +121,6 @@ export const Storages = () => {
         setUser([]);
         setArticles([]);
         setSelectedCategory(id);
-        setSelectedStorage(null);
         setStStorage();
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
@@ -134,7 +133,6 @@ export const Storages = () => {
 
     const getStorage = async (id) => {
         setArticles([]);
-        setSelectedStorage(null);
         const respuesta = await axios.get(urlStorage, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -174,7 +172,6 @@ export const Storages = () => {
         if (!nombre.trim()) return "Ingresa un nombre válido.";
         if (nombre.length < 3) return "El nombre debe tener al menos 3 caracteres.";
         if (nombre.length > 50) return "El nombre no debe superar los 50 caracteres.";
-        if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+)+$/.test(nombre.trim())) return "Debe tener nombre y apellido.";
         if (/\s{2,}/.test(nombre)) return "Evita usar múltiples espacios seguidos.";
         return "";
     };
@@ -333,8 +330,6 @@ export const Storages = () => {
 
     const clear = () => {
         
-    setSelectedCategory(null);
-    setSelectedStorage(null);
     setNameError("");
     setDescError("");
     setCantError("");
@@ -342,6 +337,7 @@ export const Storages = () => {
     setLocationValid(null);
     setUserError("");
     setUserValid(null);
+    setCatName
     setCatError("");
     }
 
